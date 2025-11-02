@@ -35,6 +35,32 @@ Scripts
 
 11_hybrid_router_local_cloud.py — Router local/cloud (opcional, requiere OPENAI_API_KEY).
 
+12_stream_tokens.py — Streaming de tokens en tiempo real.
+
+13_sampling_temperature.py — Comparativa de temperaturas y opciones.
+
+14_system_template.py — Personalizar system prompt y plantilla.
+
+15_cloud_models.py — Listado y generación con modelos en Ollama Cloud.
+
+## Cobertura del endpoint `/api/generate`
+
+| Parámetro / feature       | Script principal |
+|---------------------------|------------------|
+| `model` (local/cloud)     | 01, 11, 15        |
+| `prompt`                  | Todos             |
+| `stream`                  | 12                |
+| `images`                  | 06                |
+| `format`                  | 05                |
+| `options.temperature`     | 13                |
+| Otros `options`           | 04, 09 (ejemplo de configuración avanzada) |
+| `keep_alive`              | 04                |
+| `context`                 | 03                |
+| `system`                  | 14                |
+| `template`                | 14                |
+| `raw`                     | 07                |
+| `seed`                    | 10                |
+
 Notas rápidas
 
 En Windows: pip install requests si te da error de módulo.
