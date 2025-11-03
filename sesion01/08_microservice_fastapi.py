@@ -18,4 +18,8 @@ def summarize(inp: Inp):
     r.raise_for_status()
     return {"model": MODEL, "response": r.json().get("response","").strip()}
 
-# Run: uvicorn 08_microservice_fastapi:app --reload --port 8000
+if __name__ == "__main__":
+    import uvicorn
+    print("Servidor iniciando en http://localhost:8000")
+    print("Documentacion: http://localhost:8000/docs")
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)

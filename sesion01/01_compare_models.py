@@ -1,10 +1,11 @@
 import time, csv, requests
 
 OLLAMA = "http://localhost:11434"
-MODELS = ["gemma:2b", "llama3.1:8b"]  # ajusta según tu HW
+MODELS = ["gemma:2b", "gpt-oss:20b-cloud"]  # ajusta según tu HW
 PROMPTS = [
   ("sum-brief", "Resume en 3 viñetas por qué usar modelos locales."),
-  ("json-extract", 'Devuelve SOLO JSON con {"ventajas":[], "riesgos":[]}'),
+  ("json-extract", '''Texto: "La empresa TechCorp está migrando a modelos de IA local para procesar datos médicos. Esto les permitirá cumplir con GDPR, pero requerirá inversión en hardware."
+Extrae las ventajas y riesgos en formato JSON: {"ventajas":[], "riesgos":[]}.'''),
 ]
 
 with open("results_compare.csv", "w", newline="", encoding="utf-8") as f:
@@ -20,5 +21,7 @@ with open("results_compare.csv", "w", newline="", encoding="utf-8") as f:
             data = r.json()
             dt = int((time.time() - t0) * 1000)
             w.writerow([mid, m, dt, data.get("prompt_eval_count"), data.get("eval_count")])
-            print(mid, m, dt, "ms")
+            print(f"\n{mid} | {m} | {dt} ms")
+            print("Respuesta:", data.get("response", "").strip())
+            print("-" * 80)
 print("OK -> results_compare.csv")

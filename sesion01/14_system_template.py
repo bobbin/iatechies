@@ -16,7 +16,7 @@ def build_generate_url(base_url: str) -> str:
 
 if __name__ == "__main__":
     base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    model = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
+    model = os.getenv("OLLAMA_MODEL", "mistral:7b")
     headers = {}
     api_key = os.getenv("OLLAMA_API_KEY")
     if base_url.startswith("https://"):

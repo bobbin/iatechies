@@ -1,13 +1,35 @@
-# Teoría y explicación: Trabajar con modelos en Ollama Cloud
+# Teoría y explicación: Trabajar con modelos Cloud en Ollama
 
-Guion dedicado a consumir Ollama Cloud usando el endpoint `https://api.ollama.com/v1` y un token personal.
+Este ejercicio muestra cómo identificar y usar modelos remotos (cloud) en Ollama.
 
 ## Objetivo didáctico
-* Explicar cómo autenticar peticiones con `Authorization: Bearer <token>`.
-* Listar los modelos disponibles para un equipo y lanzar la misma petición contra varios modelos cloud.
-* Reforzar que el API de generación es el mismo que el local, solo cambia la URL base.
+* Identificar qué modelos son remotos (cloud) mediante los campos `remote_model` o `remote_host`.
+* Listar solo los modelos cloud disponibles.
+* Generar texto usando modelos cloud con el mismo API.
+
+## Cómo funciona
+1. Llama a `/api/tags` para obtener todos los modelos disponibles.
+2. Detecta si un modelo es remoto revisando los campos `remote_model` o `remote_host`.
+3. Filtra solo los modelos cloud.
+4. Prueba generación con el modelo cloud disponible.
+
+## Ejemplo de salida
+```
+Listando modelos CLOUD disponibles en Ollama...
+============================================================
+
+Total de modelos CLOUD: 1
+
+Modelos CLOUD disponibles:
+  - gpt-oss:20b-cloud
+
+============================================================
+
+Generando con: gpt-oss:20b-cloud
+Respuesta: 1. Reproducibilidad: Al tener los prompts documentados...
+```
 
 ## Mensajes clave
-* "Guarda tu token en `OLLAMA_API_KEY` y evita hardcodearlo en repositorios".
-* "Los endpoints difieren: `/api/tags` en local versus `/v1/models` en cloud".
-* "Puedes mezclar modelos cloud y locales en un router propio usando las mismas funciones auxiliares".
+* "Los modelos remotos se conectan dinámicamente cuando los usas".
+* "No necesitas descargar el modelo completo, se ejecuta en la nube".
+* "Usa el mismo API de Ollama tanto para modelos locales como cloud".

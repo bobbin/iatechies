@@ -18,6 +18,7 @@ Scripts
 02_modelfile/Modelfile — Crea un “modo” con salida JSON estable.
 
 03_chat_with_context.py — Chat multi-turno usando context.
+03b_chat_interactive.py — Chat interactivo completo desde CLI (extra).
 
 04_batch_prompts_keepalive.py — Batching con keep_alive.
 

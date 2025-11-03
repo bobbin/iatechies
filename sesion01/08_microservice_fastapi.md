@@ -11,7 +11,7 @@ En este ejercicio convertimos las llamadas a Ollama en un servicio web sencillo 
 1. Define un modelo de entrada `Inp` con un único campo `prompt`.
 2. Crea un endpoint `POST /summarize` que recibe texto y construye un prompt de resumen en 3 viñetas.
 3. Llama a Ollama con el modelo configurado y devuelve la respuesta limpia.
-4. Indica cómo ejecutarlo con `uvicorn` para probarlo en local.
+4. Permite ejecutarlo como script: `python 08_microservice_fastapi.py`
 
 ## Mensajes clave para el alumno
 * "Montar un microservicio nos permite ofrecer IA como un producto reutilizable".

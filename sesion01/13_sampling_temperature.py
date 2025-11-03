@@ -33,7 +33,7 @@ def run_completion(model: str, prompt: str, temperature: float, url: str, header
 
 if __name__ == "__main__":
     base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    model = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
+    model = os.getenv("OLLAMA_MODEL", "mistral:7b")
     prompt = "Genera un eslogan creativo para un café que solo abre de noche."
     temperatures: List[float] = [0.0, 0.4, 0.8, 1.2]
 

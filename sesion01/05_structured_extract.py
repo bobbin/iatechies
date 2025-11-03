@@ -1,7 +1,7 @@
 import json, requests
 
 OLLAMA = "http://localhost:11434"
-MODEL = "llama3.1:8b"
+MODEL = "gemma:2b"
 
 schema = {
   "type": "object",

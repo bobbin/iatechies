@@ -1,0 +1,5 @@
+prompt_id,model,latency_ms,tokens_in,tokens_out
+sum-brief,gemma:2b,5413,34,91
+sum-brief,gpt-oss:20b-cloud,4452,80,278
+json-extract,gemma:2b,3168,78,14
+json-extract,gpt-oss:20b-cloud,5176,122,435

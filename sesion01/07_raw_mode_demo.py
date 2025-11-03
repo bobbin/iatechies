@@ -1,6 +1,6 @@
 import requests
 OLLAMA = "http://localhost:11434"
-MODEL = "mistral"
+MODEL = "gemma:2b"
 
 prompt = "[INST] Explica RAG en 1 frase en español. [/INST]"
 r = requests.post(f"{OLLAMA}/api/generate",
