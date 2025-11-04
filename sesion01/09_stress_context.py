@@ -2,7 +2,7 @@ import requests
 OLLAMA = "http://localhost:11434"
 MODEL = "gemma:2b"
 
-big = "Lorem ipsum " * 4000  # aumenta para probar límites
+big = "Lorem ipsum " * 1000  # aumenta para probar límites
 prompt = f"Lee el siguiente texto y cuenta sus palabras en 1 frase:\n{big}"
 
 r = requests.post(f"{OLLAMA}/api/generate",
