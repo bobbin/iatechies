@@ -1,7 +1,7 @@
 import time, csv, requests
 
 OLLAMA = "http://localhost:11434"
-MODELS = ["gemma:2b", "gpt-oss:20b-cloud"]  # ajusta según tu HW
+MODELS = ["gemma3:4b", "gpt-oss:20b-cloud"]  # ajusta según tu HW
 PROMPTS = [
   ("sum-brief", "Resume en 3 viñetas por qué usar modelos locales."),
   ("json-extract", '''Texto: "La empresa TechCorp está migrando a modelos de IA local para procesar datos médicos. Esto les permitirá cumplir con GDPR, pero requerirá inversión en hardware."

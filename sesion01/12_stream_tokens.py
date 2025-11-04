@@ -25,7 +25,7 @@ def stream_chunks(response: requests.Response) -> Iterator[dict]:
 
 if __name__ == "__main__":
     base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    model = os.getenv("OLLAMA_MODEL", "mistral:7b")
+    model = os.getenv("OLLAMA_MODEL", "gemma:2b")
     prompt = "Resume en 5 viñetas lo nuevo de Python 3.13."
 
     headers = {}
