@@ -1,0 +1,5 @@
+Python es un lenguaje de programación.
+Es muy popular para ciencia de datos.
+Python tiene muchas librerías útiles.
+La comunidad de Python es grande.
+Python se usa en muchas empresas.

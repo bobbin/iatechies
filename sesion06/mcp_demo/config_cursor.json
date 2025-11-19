@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "demo-escape-room": {
+      "command": "python",
+      "args": [
+        "D:\\DEV\\IATechies\\iatechies\\sesion06\\mcp_demo\\server.py"
+      ],
+      "cwd": "D:\\DEV\\IATechies\\iatechies\\sesion06\\mcp_demo"
+    }
+  }
+}
+
