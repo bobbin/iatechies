@@ -1,0 +1,40 @@
+Introducción al Caso 43B – Unidad de Análisis Forense
+1. Contexto general
+
+El edificio “Torres del Río”, planta 7, apartamento 7B, ha sido escenario de un suceso grave. Una persona ha sido encontrada sin vida en su domicilio. Los detalles iniciales apuntan a que se trata de un crimen con elementos complejos: acceso de visitantes, datos temporales, posibles contradicciones entre declaraciones, registros técnicos y elementos periciales.
+
+Como equipo, vais a asumir el papel de investigadores digitales, forenses e inteligentes artificiales: vuestro objetivo no solo será reconstruir qué ocurrió, sino también quién, cómo, cuándo, y finalmente proponer una clasificación legal según el marco del Código Penal Español y una pena razonada.
+
+2. Materiales entregados
+
+Se os proporciona un conjunto de documentos que contienen la totalidad de la información (“evidencia”) disponible hasta ahora:
+
+Informe policial
+
+Informe forense
+
+Transcripciones de entrevistas (vecinos, trabajador del edificio, familiar)
+
+Logs de acceso al edificio
+
+Registro de seguridad del edificio
+
+Emails, notas y agenda personal
+
+Horarios de transporte
+
+Y el extracto del Código Penal que usaréis para la parte jurídica
+
+(A todos ellos se les pedirá citación, verificación y razonamiento con ayuda de agentes IA).
+
+3. Desafío del equipo
+
+Como equipo de multi-agentes (o como desarrolladores de la solución multi-agente), debéis diseñar un pipeline que cumpla con los siguientes hitos:
+
+Reconstrucción temporal: Identificar la ventana exacta en que se produjo el hecho, secuenciar los eventos clave (llamada, llegada de visitante, golpe, estimación forense, salida, etc).
+
+Identificación del sospechoso: Basándoos en los registros de acceso, testimonios, citas agendadas y evidencias.
+
+Detección de contradicciones: Señalar testimonios o documentos que no encajan con el resto de datos y justificarlo.
+
+Análisis jurídico: Determinar si el hecho corresponde a homicidio, asesinato, imprudencia, etc., según el Código Penal; identificar atenuantes y agravantes; proponer una pena.

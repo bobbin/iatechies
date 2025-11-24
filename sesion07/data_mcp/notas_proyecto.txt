@@ -1,0 +1,10 @@
+
+        PROYECTO: MIGRACIÓN CLOUD 2024
+        Estado: En progreso
+        Presupuesto: $50,000
+        
+        Tareas pendientes:
+        1. Evaluar proveedores (AWS vs Azure)
+        2. Migrar base de datos de usuarios
+        3. Configurar VPN corporativa
+        

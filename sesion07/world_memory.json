@@ -1,0 +1,38 @@
+{
+  "events": [
+    {
+      "time": "Mañana (08:00 AM)",
+      "actor": "NPC",
+      "action": "Abro la panadería y pongo las baguettes especiales en la vitrina",
+      "location": "Panadería",
+      "timestamp": "2025-11-23T20:56:59.247962"
+    },
+    {
+      "time": "Mañana (08:00 AM)",
+      "actor": "NPC",
+      "action": "Voy al mercado llevando las baguettes para vender y observo al Guardia",
+      "location": "Mercado",
+      "timestamp": "2025-11-23T20:57:01.263397"
+    },
+    {
+      "time": "Mañana (08:00 AM)",
+      "actor": "NPC",
+      "action": "Me acerco al Guardia y le pregunto qué le ocurre, mientras ofrezco una baguette especial",
+      "location": "Mercado",
+      "timestamp": "2025-11-23T20:57:03.057315"
+    },
+    {
+      "time": "Mañana (08:00 AM)",
+      "actor": "NPC",
+      "action": "Insisto amablemente con el Guardia para que me cuente qué le tiene tan nervioso mientras le ofrezco una baguette especial",
+      "location": "Mercado",
+      "timestamp": "2025-11-23T20:57:06.630116"
+    }
+  ],
+  "locations": {
+    "Plaza": "Tranquila, algunos pájaros cantando.",
+    "Taberna": "Cerrada por limpieza.",
+    "Mercado": "Actividad presente. NPC está aquí."
+  },
+  "day_time": "Mañana (08:00 AM)"
+}

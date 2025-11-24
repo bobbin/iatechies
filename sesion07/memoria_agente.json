@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "problema": "Cómo implementar un sistema de cache para mejorar performance de una API",
+    "solucion": "Para implementar un sistema de cache y mejorar la performance de una API, se puede usar un almacenamiento en memoria rápida como Redis o Memcached para guardar respuestas frecuentes. La cache debe configurarse con reglas de expiración para evitar datos obsoletos, y agregar cabeceras HTTP como ETag o Cache-Control para manejo eficiente por parte del cliente. Además, es útil implementar una estrategia de invalidación de cache que elimine o actualice entradas cuando cambien los datos originales, asegurando la coherencia entre cache y base de datos. Esta solución reduce la latencia y la carga en el backend, mejorando significativamente la velocidad y escalabilidad de la API.",
+    "resultado": "éxito",
+    "aprendizaje": "RESULTADO: éxito  \nAPRENDIZAJE: Una estrategia de cache bien diseñada debe incluir almacenamiento rápido, reglas de expiración, soporte para manejo del lado cliente, y mecanismos de invalidación para mantener la coherencia, lo que permite mejorar significativamente la latencia y la escalabilidad de una API.",
+    "timestamp": "2025-11-23T20:48:05.629975"
+  },
+  {
+    "id": 2,
+    "problema": "Qué estrategia de cache usar para reducir latencia en una API REST",
+    "solucion": "Para reducir la latencia en una API REST, la estrategia de cache óptima implica usar un almacenamiento en memoria rápida como Redis o Memcached para guardar respuestas frecuentes, lo cual acelera el acceso a datos comunes. Es fundamental establecer reglas de expiración para evitar que la información cacheada quede obsoleta y añadir cabeceras HTTP como ETag o Cache-Control que permitan un manejo eficiente del cache también en el cliente. Además, es indispensable implementar un mecanismo de invalidación de cache que actualice o elimine entradas cuando cambien los datos originales, garantizando la coherencia entre la cache y la base de datos. Esta combinación de almacenamiento rápido, expiración controlada, soporte cliente y mecanismos de invalidación mejora de manera sustancial la latencia y escalabilidad de la API.",
+    "resultado": "éxito",
+    "aprendizaje": "RESULTADO: éxito  \nAPRENDIZAJE: Usar un sistema de caché en memoria rápida combinado con políticas claras de expiración, control a nivel cliente y mecanismos robustos de invalidación es clave para reducir latencia y mantener la coherencia en una API REST. Esta estrategia integral permite acelerar respuestas frecuentes sin comprometer la validez de los datos.",
+    "timestamp": "2025-11-23T20:48:09.597108"
+  },
+  {
+    "id": 3,
+    "problema": "Cómo implementar un sistema de cache para mejorar performance de una API",
+    "solucion": "Para implementar un sistema de cache que mejore la performance de una API, se debe usar un almacenamiento en memoria rápida como Redis o Memcached para guardar respuestas frecuentes. Es crucial configurar reglas de expiración en la cache para evitar datos obsoletos y agregar cabeceras HTTP como ETag o Cache-Control para permitir manejo eficiente en el cliente. Adicionalmente, se debe implementar un mecanismo de invalidación que actualice o elimine entradas de cache cuando los datos originales cambien, garantizando coherencia entre cache y base de datos. Esta estrategia integral reduce la latencia y la carga en el backend, mejorando significativamente la velocidad y escalabilidad de la API.",
+    "resultado": "éxito",
+    "aprendizaje": "RESULTADO: éxito. La solución es correcta, práctica y aplicable; su enfoque combina el uso de almacenamiento en memoria rápida (Redis o Memcached) para guardar las respuestas frecuentes, reglas de expiración para evitar datos obsoletos, cabeceras HTTP para optimizar el manejo en el cliente y un mecanismo de invalidación para mantener coherencia con la base de datos. Esto contribuye a mejorar la velocidad, reducir la latencia y la carga en el backend, promoviendo un funcionamiento escalable y eficiente de la API.\n\nAPRENDIZAJE: Implementar un sistema de cache efectivo requiere considerar no solo el almacenamiento rápido, sino también la coherencia y la expiración para evitar servir datos desactualizados, lo cual es clave para mantener el rendimiento sin sacrificar la precisión de la información.",
+    "timestamp": "2025-11-23T20:49:57.484925"
+  },
+  {
+    "id": 4,
+    "problema": "Qué estrategia de cache usar para reducir latencia en una API REST",
+    "solucion": "Para reducir la latencia en una API REST, se recomienda implementar un sistema de cache en memoria rápida como Redis o Memcached para almacenar respuestas frecuentes y acelerar el acceso a datos comunes. Es crucial configurar reglas de expiración para evitar que la cache sirva datos obsoletos, y agregar cabeceras HTTP como ETag o Cache-Control para que el cliente también gestione eficientemente el cache. Además, debe implementarse un mecanismo robusto de invalidación que actualice o elimine entradas cuando cambien los datos originales, garantizando la coherencia entre cache y base de datos. Esta estrategia integral mejora significativamente la velocidad, reduce la carga del backend y mantiene la validez de la información servida.",
+    "resultado": "éxito",
+    "aprendizaje": "- RESULTADO: éxito  \n- APRENDIZAJE: Utilizar un sistema de cache en memoria rápida como Redis o Memcached junto con una correcta gestión de expiración y mecanismos de invalidación garantiza la reducción efectiva de latencia sin comprometer la coherencia de los datos, mejorando la respuesta de la API y la experiencia del usuario.",
+    "timestamp": "2025-11-23T20:50:02.124662"
+  }
+]

@@ -1,0 +1,18 @@
+PROYECTO: MIGRACIÓN CLOUD 2024
+Estado: En progreso
+Presupuesto: $50,000
+
+Tareas pendientes:
+1. Evaluar proveedores (AWS vs Azure)
+2. Migrar base de datos de usuarios
+3. Configurar VPN corporativa
+4. Contratar especialista en seguridad
+
+Riesgos potenciales identificados:
+- La falta de un especialista en seguridad puede exponer la migración y los datos a vulnerabilidades y ataques cibernéticos durante y después del proceso de migración.
+- La evaluación incompleta de proveedores sin asesoría experta puede resultar en una selección subóptima que impacte el desempeño y costos a largo plazo.
+- La migración de la base de datos sin controles y validaciones estrictas puede causar pérdidas de datos o tiempos de inactividad prolongados.
+- La configuración de la VPN corporativa sin supervisión especializada podría originar brechas de seguridad o fallos en la conectividad de la empresa.
+
+Recomendación:
+Priorizar de inmediato la contratación de un especialista en seguridad para reforzar la protección de los datos y asegurar un proceso de migración seguro, además de asesorar en todas las etapas críticas relacionadas con la infraestructura y comunicaciones. Esto mitigará riesgos de seguridad, protegerá la integridad de la información y garantizará una transición más segura y exitosa en el proyecto.

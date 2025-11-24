@@ -1,0 +1,15 @@
+Extracto relevante (14 marzo):
+
+20:58  Acceso tarjeta residente 7B  (víctima)
+21:05  Acceso tarjeta visitante  (ID parcial, ilegible)
+21:13  Acceso tarjeta gimnasio local (ID 44A)
+21:46  Salida tarjeta visitante
+21:55  Salida residente 6D
+
+Notas
+
+El visitante entra 21:05.
+
+Sale 21:46.
+
+ID parcialmente defectuoso → imposible de identificar solo por logs.
