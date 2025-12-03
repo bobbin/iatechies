@@ -90,53 +90,77 @@ async def transcribe_local(
     language: str = Form("es")
 ):
     """Transcribir con Faster-Whisper (local)"""
-    model = get_whisper_model()
-    if model is None:
-        raise HTTPException(500, "Faster-Whisper no disponible")
-    
-    # Guardar archivo temporal
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
-        content = await audio.read()
-        tmp.write(content)
-        tmp_path = tmp.name
-    
     try:
-        inicio = time.time()
+        model = get_whisper_model()
+        if model is None:
+            raise HTTPException(
+                status_code=500,
+                detail="Faster-Whisper no disponible. Instala con: pip install faster-whisper"
+            )
         
-        # Transcribir
-        segments, info = model.transcribe(
-            tmp_path,
-            language=language if language != "auto" else None,
-            word_timestamps=True
+        # Guardar archivo temporal
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+            content = await audio.read()
+            if not content:
+                raise HTTPException(status_code=400, detail="Archivo de audio vacío")
+            tmp.write(content)
+            tmp_path = tmp.name
+        
+        try:
+            inicio = time.time()
+            
+            # Transcribir
+            segments, info = model.transcribe(
+                tmp_path,
+                language=language if language != "auto" else None,
+                word_timestamps=True
+            )
+            
+            # Procesar segmentos
+            segments_list = []
+            texto_completo = ""
+            
+            for seg in segments:
+                segments_list.append({
+                    "start": round(seg.start, 2),
+                    "end": round(seg.end, 2),
+                    "text": seg.text.strip()
+                })
+                texto_completo += seg.text
+            
+            tiempo = time.time() - inicio
+            
+            return {
+                "success": True,
+                "backend": "Faster-Whisper (Local)",
+                "text": texto_completo.strip(),
+                "language": info.language,
+                "language_probability": round(info.language_probability * 100, 1),
+                "duration": round(info.duration, 2),
+                "processing_time": round(tiempo, 2),
+                "segments": segments_list
+            }
+            
+        except Exception as e:
+            print(f"❌ Error transcribiendo: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Error al transcribir: {str(e)}"
+            )
+        finally:
+            try:
+                os.unlink(tmp_path)
+            except:
+                pass
+                
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error en transcribe_local: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error del servidor: {str(e)}"
         )
-        
-        # Procesar segmentos
-        segments_list = []
-        texto_completo = ""
-        
-        for seg in segments:
-            segments_list.append({
-                "start": round(seg.start, 2),
-                "end": round(seg.end, 2),
-                "text": seg.text.strip()
-            })
-            texto_completo += seg.text
-        
-        tiempo = time.time() - inicio
-        
-        return {
-            "success": True,
-            "backend": "Faster-Whisper (Local)",
-            "text": texto_completo.strip(),
-            "language": info.language,
-            "language_probability": round(info.language_probability * 100, 1),
-            "duration": round(info.duration, 2),
-            "processing_time": round(tiempo, 2),
-            "segments": segments_list
-        }
-        
-    finally:
-        os.unlink(tmp_path)
 
 
 @app.post("/api/transcribe/openai")
@@ -145,53 +169,77 @@ async def transcribe_openai(
     language: str = Form("es")
 ):
     """Transcribir con OpenAI Whisper API"""
-    client = get_openai_client()
-    if client is None:
-        raise HTTPException(500, "OpenAI API key no configurada")
-    
-    # Guardar archivo temporal
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
-        content = await audio.read()
-        tmp.write(content)
-        tmp_path = tmp.name
-    
     try:
-        inicio = time.time()
-        
-        with open(tmp_path, "rb") as audio_file:
-            # Transcribir con formato detallado
-            transcript = client.audio.transcriptions.create(
-                model="whisper-1",
-                file=audio_file,
-                response_format="verbose_json",
-                language=language if language != "auto" else None
+        client = get_openai_client()
+        if client is None:
+            raise HTTPException(
+                status_code=500,
+                detail="OpenAI API key no configurada. Agrega OPENAI_API_KEY en .env"
             )
         
-        tiempo = time.time() - inicio
+        # Guardar archivo temporal
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+            content = await audio.read()
+            if not content:
+                raise HTTPException(status_code=400, detail="Archivo de audio vacío")
+            tmp.write(content)
+            tmp_path = tmp.name
         
-        # Procesar segmentos si existen
-        segments_list = []
-        if hasattr(transcript, 'segments') and transcript.segments:
-            for seg in transcript.segments:
-                segments_list.append({
-                    "start": round(seg['start'], 2),
-                    "end": round(seg['end'], 2),
-                    "text": seg['text'].strip()
-                })
-        
-        return {
-            "success": True,
-            "backend": "OpenAI Whisper API",
-            "text": transcript.text,
-            "language": transcript.language,
-            "language_probability": 100,  # OpenAI no devuelve probabilidad
-            "duration": round(transcript.duration, 2),
-            "processing_time": round(tiempo, 2),
-            "segments": segments_list
-        }
-        
-    finally:
-        os.unlink(tmp_path)
+        try:
+            inicio = time.time()
+            
+            with open(tmp_path, "rb") as audio_file:
+                # Transcribir con formato detallado
+                transcript = client.audio.transcriptions.create(
+                    model="whisper-1",
+                    file=audio_file,
+                    response_format="verbose_json",
+                    language=language if language != "auto" else None
+                )
+            
+            tiempo = time.time() - inicio
+            
+            # Procesar segmentos si existen
+            segments_list = []
+            if hasattr(transcript, 'segments') and transcript.segments:
+                for seg in transcript.segments:
+                    segments_list.append({
+                        "start": round(seg['start'], 2),
+                        "end": round(seg['end'], 2),
+                        "text": seg['text'].strip()
+                    })
+            
+            return {
+                "success": True,
+                "backend": "OpenAI Whisper API",
+                "text": transcript.text,
+                "language": transcript.language,
+                "language_probability": 100,  # OpenAI no devuelve probabilidad
+                "duration": round(transcript.duration, 2),
+                "processing_time": round(tiempo, 2),
+                "segments": segments_list
+            }
+            
+        except Exception as e:
+            print(f"❌ Error transcribiendo con OpenAI: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Error al transcribir con OpenAI: {str(e)}"
+            )
+        finally:
+            try:
+                os.unlink(tmp_path)
+            except:
+                pass
+                
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error en transcribe_openai: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error del servidor: {str(e)}"
+        )
 
 
 if __name__ == "__main__":

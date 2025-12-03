@@ -19,10 +19,14 @@ import websockets
 import json
 import os
 import base64
+import tempfile
+import wave
+import numpy as np
 from pathlib import Path
 from aiohttp import web
 from dotenv import load_dotenv
 import google.generativeai as genai
+from faster_whisper import WhisperModel
 
 load_dotenv()
 
@@ -40,6 +44,10 @@ class GeminiLiveRelay:
         genai.configure(api_key=api_key)
         self.model = None
         self.chat = None
+        # Cargar modelo de transcripción (usar tiny para velocidad)
+        print("⏳ Cargando modelo Whisper para transcripción...")
+        self.whisper_model = WhisperModel("tiny", device="cpu", compute_type="int8")
+        print("✅ Modelo Whisper cargado")
     
     def initialize_model(self):
         """Inicializar modelo de Gemini"""
@@ -61,7 +69,7 @@ class GeminiLiveRelay:
         self.chat = self.model.start_chat(history=[])
         print("✅ Modelo Gemini inicializado")
     
-    async def handle_client(self, websocket, path):
+    async def handle_client(self, websocket, path=None):
         """Manejar conexión del cliente web"""
         print(f"✅ Cliente conectado: {websocket.remote_address}")
         
@@ -98,21 +106,41 @@ class GeminiLiveRelay:
                         # Procesar audio acumulado
                         print(f"📥 Audio recibido: {len(audio_buffer)} bytes")
                         
+                        if len(audio_buffer) == 0:
+                            print("⚠️  Buffer de audio vacío")
+                            audio_buffer.clear()
+                            continue
+                        
                         # Notificar inicio de transcripción
                         await websocket.send(json.dumps({
                             "type": "input_audio_buffer.speech_started"
                         }))
                         
-                        # En producción, aquí convertiríamos el audio a formato
-                        # compatible con Gemini y lo enviaríamos
-                        # Por ahora, simulamos una transcripción
-                        
-                        transcription = "[Audio transcrito - funcionalidad en desarrollo]"
-                        
-                        await websocket.send(json.dumps({
-                            "type": "conversation.item.input_audio_transcription.completed",
-                            "transcript": transcription
-                        }))
+                        # Transcribir audio usando Whisper
+                        try:
+                            transcription = await self.transcribe_audio(audio_buffer)
+                            print(f"📝 Transcripción: {transcription}")
+                            
+                            if transcription and transcription.strip():
+                                await websocket.send(json.dumps({
+                                    "type": "conversation.item.input_audio_transcription.completed",
+                                    "transcript": transcription
+                                }))
+                                
+                                # Procesar el mensaje transcrito con Gemini
+                                await self.process_text_message(websocket, transcription)
+                            else:
+                                print("⚠️  Transcripción vacía")
+                                await websocket.send(json.dumps({
+                                    "type": "conversation.item.input_audio_transcription.completed",
+                                    "transcript": "[No se pudo transcribir el audio]"
+                                }))
+                        except Exception as e:
+                            print(f"❌ Error transcribiendo: {str(e)}")
+                            await websocket.send(json.dumps({
+                                "type": "error",
+                                "error": {"message": f"Error en transcripción: {str(e)}"}
+                            }))
                         
                         # Limpiar buffer
                         audio_buffer.clear()
@@ -187,6 +215,47 @@ class GeminiLiveRelay:
                 "type": "error",
                 "error": {"message": str(e)}
             }))
+    
+    async def transcribe_audio(self, audio_buffer: bytearray) -> str:
+        """Transcribir audio PCM16 usando Whisper"""
+        try:
+            # Convertir bytes a numpy array (PCM16, 16kHz, mono)
+            audio_data = np.frombuffer(audio_buffer, dtype=np.int16).astype(np.float32) / 32768.0
+            
+            # Guardar temporalmente como WAV para Whisper
+            with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as tmp_file:
+                tmp_path = tmp_file.name
+                
+                # Escribir WAV
+                with wave.open(tmp_path, 'wb') as wav_file:
+                    wav_file.setnchannels(1)  # Mono
+                    wav_file.setsampwidth(2)  # 16-bit
+                    wav_file.setframerate(16000)  # 16kHz
+                    wav_file.writeframes(audio_buffer)
+                
+                # Transcribir
+                segments, info = self.whisper_model.transcribe(
+                    tmp_path,
+                    language="es",
+                    beam_size=5
+                )
+                
+                # Unir segmentos
+                transcription = ""
+                for segment in segments:
+                    transcription += segment.text + " "
+                
+                # Limpiar archivo temporal
+                try:
+                    os.unlink(tmp_path)
+                except:
+                    pass
+                
+                return transcription.strip()
+        
+        except Exception as e:
+            print(f"❌ Error en transcribe_audio: {str(e)}")
+            return ""
     
     async def generate_response(self, websocket):
         """Generar respuesta del modelo"""

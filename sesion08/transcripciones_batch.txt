@@ -1,0 +1,395 @@
+TRANSCRIPCIONES EN BATCH
+============================================================
+
+Archivo: ejemplo_audio.wav
+Idioma: es
+Duración: 5.69s
+Transcripción:
+ Hola, este es un ejemplo de audio para probar Faster Whisper.
+------------------------------------------------------------
+
+Archivo: ref_voz_aguda.wav
+Idioma: es
+Duración: 13.66s
+Transcripción:
+ Hola, soy una voz con características muy particulares.  Mi forma de hablar es única y distintiva.  Escucha como pronuncio cada palabra con mi timbre especial.  Esta es una muestra de mi voz para que puedas conocerme mejor.
+------------------------------------------------------------
+
+Archivo: ref_voz_dramatica.wav
+Idioma: es
+Duración: 18.34s
+Transcripción:
+ Hola, soy una voz con características muy particulares.  Mi forma de hablar es única y distintiva.  Escucha como pronuncio cada palabra con mi timbre especial.  Esta es una muestra de mi voz para que puedas conocerme mejor.
+------------------------------------------------------------
+
+Archivo: ref_voz_grave.wav
+Idioma: es
+Duración: 18.96s
+Transcripción:
+ Hola, soy una voz con características muy particulares.  Mi forma de hablar es única y distintiva.  Escucha como pronuncio cada palabra con mi timbre especial.  Esta es una muestra de mi voz para que puedas conocerme mejor.
+------------------------------------------------------------
+
+Archivo: ref_voz_juvenil.wav
+Idioma: es
+Duración: 13.70s
+Transcripción:
+ Hola, soy una voz con características muy particulares.  Mi forma de hablar es única y distintiva.  Escucha como pronuncio cada palabra con mi timbre especial.  Esta es una muestra de mi voz para que puedas conocerme mejor.
+------------------------------------------------------------
+
+Archivo: ref_voz_monotona.wav
+Idioma: es
+Duración: 15.98s
+Transcripción:
+ Hola, soy una voz con características muy particulares.  Mi forma de hablar es única y distintiva.  Escucha como pronuncio cada palabra con mi timbre especial.  Esta es una muestra de mi voz para que puedas conocerme mejor.
+------------------------------------------------------------
+
+Archivo: sara-locutora-spanish-voiceover.wav
+Idioma: es
+Duración: 20.87s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva a avances más sólidos que los esfuerzos individuales,  queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: vc_ia_anime_femenino.wav
+Idioma: es
+Duración: 20.86s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra vía, porque sabemos que la inteligencia colectiva lleva a avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: vc_ia_anime_kawaii.wav
+Idioma: es
+Duración: 20.86s
+Transcripción:
+ Los pacientes y los cuivadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: vc_ia_robot_grave.wav
+Idioma: es
+Duración: 20.86s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra vía, porque sabemos que la inteligencia colectiva lleva a avances más sólidos que los esfuerzos individuales,  queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: vc_ia_robot_ia.wav
+Idioma: es
+Duración: 20.86s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva a avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: vc_ia_villano.wav
+Idioma: es
+Duración: 20.86s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel plave en nuestros proyectos de investigación.  Su experiencia es nuestra día, porque sabemos que la inteligencia colectiva lleva a avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: vc_real_hombre_ar_freevc.wav
+Idioma: es
+Duración: 20.86s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel cloud en nuestros proyectos de investigación.  Su experiencia es nuestra ría, porque sabemos que la inteligencia colectiva lleva a avances más sólidos que los esfuerzos individuantes.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: vc_real_hombre_es_freevc.wav
+Idioma: es
+Duración: 20.86s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel cloud en nuestros proyectos de investigación.  Su experiencia es nuestra ría, porque sabemos que la inteligencia colectiva lleva a avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_converted_hombre_argentino.wav
+Idioma: es
+Duración: 20.50s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_converted_hombre_espanol.wav
+Idioma: es
+Duración: 20.52s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: output_edge.mp3
+Idioma: es
+Duración: 12.19s
+Transcripción:
+ Todo quedó abierto tras el cero a cero de Kaiserslautern, un partido de doble lectura.  En la primera parte, Alemania impuso músculo, ritmo y una presión que obligó a España a resistir.
+------------------------------------------------------------
+
+Archivo: output_edge_completo.mp3
+Idioma: es
+Duración: 11.09s
+Transcripción:
+ Todo quedó abierto tras el cero a cero de Kaiser's Lautern, un partido de doble lectura.  En la primera parte, Alemania impuso músculo, ritmo y una presión que obligó a España a resistir.
+------------------------------------------------------------
+
+Archivo: output_edge_lento.mp3
+Idioma: es
+Duración: 6.00s
+Transcripción:
+ Hola, te es una prueba de velocidad.
+------------------------------------------------------------
+
+Archivo: output_edge_muy_rapido.mp3
+Idioma: es
+Duración: 1.54s
+Transcripción:
+ Hola, ¿tais una prueba de velocidad?
+------------------------------------------------------------
+
+Archivo: output_edge_normal.mp3
+Idioma: es
+Duración: 3.02s
+Transcripción:
+ Hola, esta es una prueba de velocidad.
+------------------------------------------------------------
+
+Archivo: output_edge_rapido.mp3
+Idioma: es
+Duración: 2.04s
+Transcripción:
+ Hola, esta es una prueba de velocidad.
+------------------------------------------------------------
+
+Archivo: output_edge_subtitulos.mp3
+Idioma: es
+Duración: 12.19s
+Transcripción:
+ Todo quedó abierto tras el cero a cero de Kaiserslautern, un partido de doble lectura.  En la primera parte, Alemania impuso músculo, ritmo y una presión que obligó a España a resistir.
+------------------------------------------------------------
+
+Archivo: output_edge_tono_agudo.mp3
+Idioma: es
+Duración: 2.74s
+Transcripción:
+ el tono de mi voz puede variar.
+------------------------------------------------------------
+
+Archivo: output_edge_tono_grave.mp3
+Idioma: es
+Duración: 2.74s
+Transcripción:
+ El tono de mi voz puede variar.
+------------------------------------------------------------
+
+Archivo: output_edge_tono_normal.mp3
+Idioma: es
+Duración: 2.74s
+Transcripción:
+ El tono de mi voz puede variar.
+------------------------------------------------------------
+
+Archivo: output_edge_vol_alto.mp3
+Idioma: es
+Duración: 3.05s
+Transcripción:
+ probando diferentes niveles de volumen.
+------------------------------------------------------------
+
+Archivo: output_edge_vol_bajo.mp3
+Idioma: es
+Duración: 3.05s
+Transcripción:
+ probando diferentes niveles de volumen.
+------------------------------------------------------------
+
+Archivo: output_edge_vol_normal.mp3
+Idioma: es
+Duración: 3.05s
+Transcripción:
+ probando diferentes niveles de volumen.
+------------------------------------------------------------
+
+Archivo: ref_voz_aguda.mp3
+Idioma: es
+Duración: 13.66s
+Transcripción:
+ Hola, soy una voz con características muy particulares.  Mi forma de hablar es única y distintiva.  Escucha como pronunció cada palabra con mi timbre especial.  Esta es una muestra de mi voz para que puedas conocerme mejor.
+------------------------------------------------------------
+
+Archivo: ref_voz_dramatica.mp3
+Idioma: es
+Duración: 18.34s
+Transcripción:
+ Hola, soy una voz con características muy particulares.  Mi forma de hablar es única y distintiva.  Escucha como pronuncio cada palabra con mi timbre especial.  Esta es una muestra de mi voz para que puedas conocerme mejor.
+------------------------------------------------------------
+
+Archivo: ref_voz_grave.mp3
+Idioma: es
+Duración: 18.96s
+Transcripción:
+ Hola, soy una voz con características muy particulares.  Mi forma de hablar es única y distintiva.  Escucha como pronuncio cada palabra con mi timbre especial.  Esta es una muestra de mi voz para que puedas conocerme mejor.
+------------------------------------------------------------
+
+Archivo: ref_voz_juvenil.mp3
+Idioma: es
+Duración: 13.70s
+Transcripción:
+ Hola, soy una voz con características muy particulares.  Mi forma de hablar es única y distintiva.  Escucha como pronuncio cada palabra con mi timbre especial.  Esta es una muestra de mi voz para que puedas conocerme mejor.
+------------------------------------------------------------
+
+Archivo: ref_voz_monotona.mp3
+Idioma: es
+Duración: 15.98s
+Transcripción:
+ Hola, soy una voz con características muy particulares.  Mi forma de hablar es única y distintiva.  Escucha como pronuncio cada palabra con mi timbre especial.  Esta es una muestra de mi voz para que puedas conocerme mejor.
+------------------------------------------------------------
+
+Archivo: sara-locutora-spanish-voiceover.mp3
+Idioma: es
+Duración: 20.87s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva  lleva a avances más sólidos que los esfuerzos individuales,  queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19  en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_converted_hombre_argentino.mp3
+Idioma: es
+Duración: 20.50s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_converted_hombre_colombiano.mp3
+Idioma: es
+Duración: 19.58s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva llevá vances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_converted_hombre_espanol.mp3
+Idioma: es
+Duración: 20.52s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_converted_hombre_mexicano.mp3
+Idioma: es
+Duración: 22.13s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva a avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_converted_locutora_premium.mp3
+Idioma: es
+Duración: 19.13s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_converted_locutor_premium.mp3
+Idioma: es
+Duración: 20.95s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva a avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_converted_mujer_argentina.mp3
+Idioma: es
+Duración: 21.50s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_converted_mujer_espanola.mp3
+Idioma: es
+Duración: 21.29s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva a avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_converted_mujer_mexicana.mp3
+Idioma: es
+Duración: 21.07s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_effect_anime.mp3
+Idioma: es
+Duración: 14.91s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra ría.  Porque sabemos que la inteligencia colectiva lleva avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19  en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_effect_ardilla.mp3
+Idioma: es
+Duración: 11.60s
+Transcripción:
+
+------------------------------------------------------------
+
+Archivo: voice_effect_demonio.mp3
+Idioma: es
+Duración: 34.79s
+Transcripción:
+ Lostad fíjense en las cuidadones, Kirino, papel clave en los costos progítos de investigación.  Sorcería en fíjense en las historias, por lo que se hace menos que la intercante acolertiva,  Y en la paz es más solo y os quiero ser fuertos sin vivir iguales.  Queremos ser la verdadera registro de las fiendes para conocer los aspectos de la Códiga y Núeme.  En personas con enfermedades, poco preocupes.
+------------------------------------------------------------
+
+Archivo: voice_effect_fantasma.mp3
+Idioma: es
+Duración: 24.55s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva avances más solidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los aspectos de la COVID-19,  en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_effect_radio.mp3
+Idioma: es
+Duración: 20.87s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva a avances más sólidos que los esfuerzos individuales,  queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_effect_robot.mp3
+Idioma: es
+Duración: 20.87s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva  lleva a avances más sólidos que los esfuerzos individuales,  queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19  en personas con enfermedades poco frecuentes.
+------------------------------------------------------------
+
+Archivo: voice_effect_underwater.mp3
+Idioma: es
+Duración: 20.87s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave a nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva avances más sólidos que los esfuerzos individuales.  Queremos elaborar un registro de pacientes para conocer los efectos de la COVID-19 en personas con enfermedades poco precuentes.
+------------------------------------------------------------
+
+Archivo: voice_style_anuncio_radio.mp3
+Idioma: es
+Duración: 10.66s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva a avances más sólidos.
+------------------------------------------------------------
+
+Archivo: voice_style_locutor_deportes.mp3
+Idioma: es
+Duración: 9.77s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva a avances más sólidos.
+------------------------------------------------------------
+
+Archivo: voice_style_locutor_serio.mp3
+Idioma: es
+Duración: 13.01s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva a avances más sólidos.
+------------------------------------------------------------
+
+Archivo: voice_style_meditacion.mp3
+Idioma: es
+Duración: 16.70s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva a avances más sólidos.
+------------------------------------------------------------
+
+Archivo: voice_style_narrador_documental.mp3
+Idioma: es
+Duración: 14.62s
+Transcripción:
+ Los pacientes y los cuidadores tienen un papel clave en nuestros proyectos de investigación.  Su experiencia es nuestra guía, porque sabemos que la inteligencia colectiva lleva a avances más sólidos.
+------------------------------------------------------------
+

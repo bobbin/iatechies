@@ -248,8 +248,10 @@
 
         <div class="info">
             <strong>💡 Instrucciones:</strong>
-            1. Conectar → 2. Hablar → 3. El asistente responderá automáticamente<br>
-            <strong>🎯 Características:</strong> Interrupciones naturales, VAD automático, baja latencia
+            1. <strong>Primero ejecuta el servidor:</strong> <code>python 05_realtime_openai_server.py</code><br>
+            2. Conectar → 3. Hablar → 4. El asistente responderá automáticamente<br>
+            <strong>🎯 Características:</strong> Interrupciones naturales, VAD automático, baja latencia<br>
+            <strong>⚠️ Requisitos:</strong> OPENAI_API_KEY en archivo .env
         </div>
     </div>
 
@@ -257,7 +259,6 @@
         let ws = null;
         let audioContext = null;
         let mediaStream = null;
-        let audioWorkletNode = null;
         let isTalking = false;
         let conversationDiv = document.getElementById('conversation');
         let statusDiv = document.getElementById('status');
@@ -316,12 +317,21 @@
 
                 ws.onerror = (error) => {
                     console.error('WebSocket error:', error);
-                    updateStatus('Error de conexión', 'disconnected');
+                    updateStatus('Error de conexión - ¿Servidor corriendo?', 'disconnected');
+                    addMessage('assistant', '❌ Error: No se pudo conectar al servidor. Asegúrate de que el servidor esté corriendo con: python 05_realtime_openai_server.py');
                 };
 
-                ws.onclose = () => {
-                    console.log('WebSocket cerrado');
-                    updateStatus('Desconectado', 'disconnected');
+                ws.onclose = (event) => {
+                    console.log('WebSocket cerrado', event.code, event.reason);
+                    if (event.code !== 1000) {
+                        // Cierre inesperado
+                        updateStatus('Desconectado - Error de conexión', 'disconnected');
+                        if (event.code === 1006) {
+                            addMessage('assistant', '⚠️ El servidor no está disponible. Ejecuta: python 05_realtime_openai_server.py');
+                        }
+                    } else {
+                        updateStatus('Desconectado', 'disconnected');
+                    }
                     document.getElementById('connectBtn').disabled = false;
                     document.getElementById('talkBtn').disabled = true;
                     document.getElementById('stopBtn').disabled = true;
@@ -338,7 +348,7 @@
                 // Solicitar acceso al micrófono
                 mediaStream = await navigator.mediaDevices.getUserMedia({ 
                     audio: {
-                        sampleRate: 24000,
+                        sampleRate: 24000,  // OpenAI usa 24kHz
                         channelCount: 1,
                         echoCancellation: true,
                         noiseSuppression: true
@@ -348,94 +358,61 @@
                 audioContext = new AudioContext({ sampleRate: 24000 });
                 const source = audioContext.createMediaStreamSource(mediaStream);
 
-                // Crear procesador de audio
-                await audioContext.audioWorklet.addModule(createAudioWorkletProcessor());
+                // Usar ScriptProcessorNode como alternativa más compatible
+                // (aunque deprecated, funciona mejor que AudioWorklet con Blob URLs)
+                const bufferSize = 4096;
+                const processor = audioContext.createScriptProcessor(bufferSize, 1, 1);
                 
-                audioWorkletNode = new AudioWorkletNode(audioContext, 'audio-processor');
+                let audioBuffer = new Float32Array(bufferSize);
+                let bufferIndex = 0;
                 
-                audioWorkletNode.port.onmessage = (event) => {
-                    if (event.data.type === 'audio') {
-                        // Enviar audio al servidor
-                        if (ws && ws.readyState === WebSocket.OPEN && isTalking) {
-                            const audioData = event.data.audio;
-                            const message = {
-                                type: 'input_audio_buffer.append',
-                                audio: arrayBufferToBase64(audioData)
-                            };
-                            ws.send(JSON.stringify(message));
+                processor.onaudioprocess = (event) => {
+                    if (!isTalking) return;
+                    
+                    const input = event.inputBuffer.getChannelData(0);
+                    
+                    // Acumular muestras
+                    for (let i = 0; i < input.length; i++) {
+                        audioBuffer[bufferIndex++] = input[i];
+                        
+                        if (bufferIndex >= bufferSize) {
+                            // Convertir a PCM16
+                            const pcm16 = new Int16Array(bufferSize);
+                            let sum = 0;
+                            
+                            for (let j = 0; j < bufferSize; j++) {
+                                const s = Math.max(-1, Math.min(1, audioBuffer[j]));
+                                pcm16[j] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                                sum += Math.abs(audioBuffer[j]);
+                            }
+                            
+                            // Enviar audio al servidor
+                            if (ws && ws.readyState === WebSocket.OPEN) {
+                                const message = {
+                                    type: 'input_audio_buffer.append',
+                                    audio: arrayBufferToBase64(pcm16.buffer)
+                                };
+                                ws.send(JSON.stringify(message));
+                            }
+                            
+                            // Visualizar volumen
+                            const volume = sum / bufferSize;
+                            updateVisualizer(volume);
+                            
+                            bufferIndex = 0;
                         }
-                    } else if (event.data.type === 'volume') {
-                        // Visualizar audio
-                        updateVisualizer(event.data.volume);
                     }
                 };
 
-                source.connect(audioWorkletNode);
-                audioWorkletNode.connect(audioContext.destination);
+                source.connect(processor);
+                processor.connect(audioContext.destination);
 
-                console.log('Audio inicializado');
+                console.log('Audio inicializado con ScriptProcessorNode');
 
             } catch (error) {
                 console.error('Error al inicializar audio:', error);
                 alert('No se pudo acceder al micrófono: ' + error.message);
             }
-        }
-
-        function createAudioWorkletProcessor() {
-            const processorCode = `
-                class AudioProcessor extends AudioWorkletProcessor {
-                    constructor() {
-                        super();
-                        this.bufferSize = 2048;
-                        this.buffer = new Float32Array(this.bufferSize);
-                        this.bufferIndex = 0;
-                    }
-
-                    process(inputs, outputs, parameters) {
-                        const input = inputs[0];
-                        if (input.length > 0) {
-                            const samples = input[0];
-                            
-                            for (let i = 0; i < samples.length; i++) {
-                                this.buffer[this.bufferIndex++] = samples[i];
-                                
-                                if (this.bufferIndex >= this.bufferSize) {
-                                    // Convertir a PCM16
-                                    const pcm16 = new Int16Array(this.bufferSize);
-                                    for (let j = 0; j < this.bufferSize; j++) {
-                                        const s = Math.max(-1, Math.min(1, this.buffer[j]));
-                                        pcm16[j] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-                                    }
-                                    
-                                    this.port.postMessage({
-                                        type: 'audio',
-                                        audio: pcm16.buffer
-                                    }, [pcm16.buffer]);
-                                    
-                                    // Calcular volumen
-                                    let sum = 0;
-                                    for (let j = 0; j < this.bufferSize; j++) {
-                                        sum += Math.abs(this.buffer[j]);
-                                    }
-                                    const volume = sum / this.bufferSize;
-                                    
-                                    this.port.postMessage({
-                                        type: 'volume',
-                                        volume: volume
-                                    });
-                                    
-                                    this.bufferIndex = 0;
-                                }
-                            }
-                        }
-                        return true;
-                    }
-                }
-                registerProcessor('audio-processor', AudioProcessor);
-            `;
-            
-            const blob = new Blob([processorCode], { type: 'application/javascript' });
-            return URL.createObjectURL(blob);
         }
 
         function arrayBufferToBase64(buffer) {

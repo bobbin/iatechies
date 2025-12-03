@@ -260,6 +260,34 @@
 
             <div id="modelInfo" class="model-info"></div>
 
+            <!-- Sección de mezcla de voces (solo Kokoro) -->
+            <div class="reference-section hidden" id="voiceBlendSection" style="background: rgba(168,85,247,0.1); border-color: #a855f7;">
+                <h3>🎨 Mezcla de Voces (Kokoro)</h3>
+                <p style="font-size:0.8rem;color:#aaa;margin-bottom:10px;">
+                    Combina voces para crear nuevas. Ejemplos: <code>af_heart+af_sky</code> o <code>ef_dora[0.7]+em_alex[0.3]</code>
+                </p>
+                <div class="controls" style="grid-template-columns: 1fr 1fr auto;">
+                    <div class="control-group">
+                        <label>Voz 1</label>
+                        <select id="blendVoice1"></select>
+                    </div>
+                    <div class="control-group">
+                        <label>Voz 2</label>
+                        <select id="blendVoice2"></select>
+                    </div>
+                    <div class="control-group">
+                        <label>Peso V1</label>
+                        <input type="range" id="blendWeight" min="0" max="1" step="0.1" value="0.5" style="width:80px;" oninput="updateBlendPreview()">
+                        <div class="speed-value" id="blendWeightValue" style="font-size:0.8rem;">50%</div>
+                    </div>
+                </div>
+                <div style="margin-top:10px; display:flex; gap:10px; align-items:center;">
+                    <input type="checkbox" id="useBlend" onchange="updateBlendPreview()">
+                    <label for="useBlend" style="font-size:0.85rem;">Usar mezcla de voces</label>
+                    <span id="blendPreview" style="font-size:0.8rem; color:#a855f7; margin-left:auto;"></span>
+                </div>
+            </div>
+
             <!-- Sección de clonación de voz -->
             <div class="reference-section" id="cloningSection">
                 <h3>🎭 Clonación de Voz (Opcional)</h3>
@@ -453,6 +481,56 @@
             } else {
                 cloningSection.classList.add('hidden');
             }
+            
+            // Mostrar/ocultar mezcla de voces (solo Kokoro)
+            const voiceBlendSection = document.getElementById('voiceBlendSection');
+            if (backend === 'kokoro' && model && model.speakers) {
+                voiceBlendSection.classList.remove('hidden');
+                
+                // Poblar selectores de mezcla
+                const blend1 = document.getElementById('blendVoice1');
+                const blend2 = document.getElementById('blendVoice2');
+                blend1.innerHTML = '';
+                blend2.innerHTML = '';
+                
+                model.speakers.forEach(s => {
+                    const name = model.speaker_names ? model.speaker_names[s] : s;
+                    const opt1 = document.createElement('option');
+                    opt1.value = s;
+                    opt1.textContent = name;
+                    blend1.appendChild(opt1);
+                    
+                    const opt2 = document.createElement('option');
+                    opt2.value = s;
+                    opt2.textContent = name;
+                    blend2.appendChild(opt2);
+                });
+                
+                // Seleccionar voces por defecto
+                blend1.value = 'ef_dora';
+                blend2.value = 'af_heart';
+                updateBlendPreview();
+            } else {
+                voiceBlendSection.classList.add('hidden');
+            }
+        }
+        
+        function updateBlendPreview() {
+            const useBlend = document.getElementById('useBlend').checked;
+            const v1 = document.getElementById('blendVoice1').value;
+            const v2 = document.getElementById('blendVoice2').value;
+            const weight = parseFloat(document.getElementById('blendWeight').value);
+            
+            document.getElementById('blendWeightValue').textContent = Math.round(weight * 100) + '%';
+            
+            if (useBlend && v1 && v2) {
+                const w1 = weight.toFixed(1);
+                const w2 = (1 - weight).toFixed(1);
+                const blendStr = `${v1}[${w1}]+${v2}[${w2}]`;
+                document.getElementById('blendPreview').textContent = `Mezcla: ${blendStr}`;
+            } else {
+                document.getElementById('blendPreview').textContent = '';
+            }
         }
 
         function updateCharCount() {
@@ -565,11 +643,25 @@
             document.getElementById('result').classList.remove('visible');
 
             try {
+                // Construir mezcla de voces para Kokoro si está activada
+                let voiceBlend = 'default';
+                if (backend === 'kokoro') {
+                    const useBlend = document.getElementById('useBlend').checked;
+                    if (useBlend) {
+                        const v1 = document.getElementById('blendVoice1').value;
+                        const v2 = document.getElementById('blendVoice2').value;
+                        const weight = parseFloat(document.getElementById('blendWeight').value);
+                        const w1 = weight.toFixed(1);
+                        const w2 = (1 - weight).toFixed(1);
+                        voiceBlend = `${v1}[${w1}]+${v2}[${w2}]`;
+                    }
+                }
+                
                 const body = {
                     text, backend, speed,
                     language: backend === 'coqui_xtts' ? language : 'es',
                     speaker: speaker,
-                    voice: backend === 'openai' ? speaker : 'default',
+                    voice: backend === 'kokoro' ? voiceBlend : (backend === 'openai' ? speaker : 'default'),
                     reference_audio: selectedReference || 'none'
                 };
 

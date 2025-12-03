@@ -34,9 +34,30 @@ def main():
     print(f"✅ Audio reproducido correctamente")
     
     print(f"\n💡 Info:")
-    print(f"   - Motor: {engine.getProperty('name') if hasattr(engine, 'getProperty') else 'Sistema'}")
-    print(f"   - Velocidad: {engine.getProperty('rate')} palabras/min")
-    print(f"   - Volumen: {engine.getProperty('volume')}")
+    try:
+        voices = engine.getProperty('voices')
+        current_voice = engine.getProperty('voice')
+        voice_name = "Sistema"
+        if voices and current_voice:
+            for voice in voices:
+                if voice.id == current_voice:
+                    voice_name = voice.name
+                    break
+        print(f"   - Voz: {voice_name}")
+    except:
+        print(f"   - Motor: pyttsx3 (Sistema)")
+    
+    try:
+        rate = engine.getProperty('rate')
+        print(f"   - Velocidad: {rate} palabras/min")
+    except:
+        print(f"   - Velocidad: No disponible")
+    
+    try:
+        volume = engine.getProperty('volume')
+        print(f"   - Volumen: {volume:.2f}")
+    except:
+        print(f"   - Volumen: No disponible")
 
 
 if __name__ == "__main__":

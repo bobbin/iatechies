@@ -107,14 +107,41 @@ async def crear_voces_referencia():
 
 def convertir_a_wav(mp3_path: str) -> str:
     """Convierte MP3 a WAV (formato requerido por FreeVC)"""
-    from pydub import AudioSegment
-    
     wav_path = mp3_path.replace(".mp3", ".wav")
-    if not os.path.exists(wav_path) or os.path.getmtime(mp3_path) > os.path.getmtime(wav_path):
+    
+    # Si ya existe y es más reciente, no convertir
+    if os.path.exists(wav_path) and os.path.getmtime(mp3_path) <= os.path.getmtime(wav_path):
+        return wav_path
+    
+    # Intentar con pydub (requiere ffmpeg)
+    try:
+        from pydub import AudioSegment
         audio = AudioSegment.from_mp3(mp3_path)
         audio = audio.set_frame_rate(22050).set_channels(1)
         audio.export(wav_path, format="wav")
-    return wav_path
+        return wav_path
+    except Exception as e:
+        print(f"   ⚠️  pydub falló: {e}")
+        print("   🔄 Intentando alternativa con librosa...")
+    
+    # Alternativa con librosa (no requiere ffmpeg)
+    try:
+        import librosa
+        import soundfile as sf
+        
+        # Cargar audio con librosa (convierte automáticamente a mono y 22050 Hz)
+        audio, sr = librosa.load(mp3_path, sr=22050, mono=True)
+        
+        # Guardar como WAV
+        sf.write(wav_path, audio, 22050)
+        print(f"   ✅ Convertido con librosa: {wav_path}")
+        return wav_path
+    except ImportError:
+        print("   ❌ librosa no está instalado. Instala con: pip install librosa soundfile")
+        raise
+    except Exception as e:
+        print(f"   ❌ Error con librosa: {e}")
+        raise
 
 
 def voice_conversion_ia(voces_referencia: list):
