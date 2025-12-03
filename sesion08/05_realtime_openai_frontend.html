@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI Realtime API - Conversación de Voz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status.disconnected {
+            background: #fee;
+            color: #c33;
+        }
+
+        .status.connected {
+            background: #efe;
+            color: #3c3;
+        }
+
+        .status.speaking {
+            background: #ffeaa7;
+            color: #d63031;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #connectBtn {
+            background: #667eea;
+            color: white;
+        }
+
+        #talkBtn {
+            background: #3c3;
+            color: white;
+        }
+
+        #talkBtn.talking {
+            background: #d63031;
+            animation: talking-pulse 1s infinite;
+        }
+
+        @keyframes talking-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        #stopBtn {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .conversation {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            background: #667eea;
+            color: white;
+            margin-left: 20%;
+        }
+
+        .message.assistant {
+            background: white;
+            border: 2px solid #e0e0e0;
+            margin-right: 20%;
+        }
+
+        .message-label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            opacity: 0.7;
+        }
+
+        .audio-visualizer {
+            width: 100%;
+            height: 80px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .audio-bars {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 4px;
+        }
+
+        .bar {
+            width: 4px;
+            background: #667eea;
+            border-radius: 2px;
+            transition: height 0.1s;
+        }
+
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #1976d2;
+        }
+
+        .info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ OpenAI Realtime API</h1>
+        <p class="subtitle">Conversación de voz en tiempo real con GPT-4o</p>
+
+        <div class="status disconnected" id="status">
+            <div class="status-dot"></div>
+            <span>Desconectado</span>
+        </div>
+
+        <div class="controls">
+            <button id="connectBtn" onclick="connect()">Conectar</button>
+            <button id="talkBtn" onclick="toggleTalk()" disabled>🎤 Hablar</button>
+            <button id="stopBtn" onclick="disconnect()" disabled>Desconectar</button>
+        </div>
+
+        <div class="audio-visualizer">
+            <div class="audio-bars" id="visualizer">
+                <!-- Barras de audio generadas por JS -->
+            </div>
+        </div>
+
+        <div class="conversation" id="conversation">
+            <div style="text-align: center; color: #999; padding: 60px 20px;">
+                <p>Haz clic en "Conectar" para iniciar</p>
+                <p style="font-size: 12px; margin-top: 10px;">Permite el acceso al micrófono cuando se solicite</p>
+            </div>
+        </div>
+
+        <div class="info">
+            <strong>💡 Instrucciones:</strong>
+            1. Conectar → 2. Hablar → 3. El asistente responderá automáticamente<br>
+            <strong>🎯 Características:</strong> Interrupciones naturales, VAD automático, baja latencia
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let audioContext = null;
+        let mediaStream = null;
+        let audioWorkletNode = null;
+        let isTalking = false;
+        let conversationDiv = document.getElementById('conversation');
+        let statusDiv = document.getElementById('status');
+        let visualizer = document.getElementById('visualizer');
+
+        // Crear barras de visualizador
+        for (let i = 0; i < 20; i++) {
+            let bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = '10px';
+            visualizer.appendChild(bar);
+        }
+        let bars = document.querySelectorAll('.bar');
+
+        function updateStatus(text, className) {
+            statusDiv.className = `status ${className}`;
+            statusDiv.querySelector('span').textContent = text;
+        }
+
+        function addMessage(role, text) {
+            let message = document.createElement('div');
+            message.className = `message ${role}`;
+            message.innerHTML = `
+                <div class="message-label">${role === 'user' ? '👤 Tú' : '🤖 Asistente'}</div>
+                <div>${text}</div>
+            `;
+            conversationDiv.appendChild(message);
+            conversationDiv.scrollTop = conversationDiv.scrollHeight;
+        }
+
+        async function connect() {
+            try {
+                updateStatus('Conectando...', 'disconnected');
+
+                // Conectar WebSocket
+                ws = new WebSocket('ws://localhost:8765');
+
+                ws.onopen = async () => {
+                    console.log('WebSocket conectado');
+                    updateStatus('Conectado - Listo para hablar', 'connected');
+                    
+                    document.getElementById('connectBtn').disabled = true;
+                    document.getElementById('talkBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = false;
+
+                    conversationDiv.innerHTML = '';
+                    addMessage('assistant', '¡Hola! Estoy listo para conversar. Haz clic en "Hablar" cuando quieras empezar.');
+
+                    // Inicializar audio
+                    await initAudio();
+                };
+
+                ws.onmessage = (event) => {
+                    handleServerMessage(JSON.parse(event.data));
+                };
+
+                ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    updateStatus('Error de conexión', 'disconnected');
+                };
+
+                ws.onclose = () => {
+                    console.log('WebSocket cerrado');
+                    updateStatus('Desconectado', 'disconnected');
+                    document.getElementById('connectBtn').disabled = false;
+                    document.getElementById('talkBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = true;
+                };
+
+            } catch (error) {
+                console.error('Error al conectar:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function initAudio() {
+            try {
+                // Solicitar acceso al micrófono
+                mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        sampleRate: 24000,
+                        channelCount: 1,
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    } 
+                });
+
+                audioContext = new AudioContext({ sampleRate: 24000 });
+                const source = audioContext.createMediaStreamSource(mediaStream);
+
+                // Crear procesador de audio
+                await audioContext.audioWorklet.addModule(createAudioWorkletProcessor());
+                
+                audioWorkletNode = new AudioWorkletNode(audioContext, 'audio-processor');
+                
+                audioWorkletNode.port.onmessage = (event) => {
+                    if (event.data.type === 'audio') {
+                        // Enviar audio al servidor
+                        if (ws && ws.readyState === WebSocket.OPEN && isTalking) {
+                            const audioData = event.data.audio;
+                            const message = {
+                                type: 'input_audio_buffer.append',
+                                audio: arrayBufferToBase64(audioData)
+                            };
+                            ws.send(JSON.stringify(message));
+                        }
+                    } else if (event.data.type === 'volume') {
+                        // Visualizar audio
+                        updateVisualizer(event.data.volume);
+                    }
+                };
+
+                source.connect(audioWorkletNode);
+                audioWorkletNode.connect(audioContext.destination);
+
+                console.log('Audio inicializado');
+
+            } catch (error) {
+                console.error('Error al inicializar audio:', error);
+                alert('No se pudo acceder al micrófono: ' + error.message);
+            }
+        }
+
+        function createAudioWorkletProcessor() {
+            const processorCode = `
+                class AudioProcessor extends AudioWorkletProcessor {
+                    constructor() {
+                        super();
+                        this.bufferSize = 2048;
+                        this.buffer = new Float32Array(this.bufferSize);
+                        this.bufferIndex = 0;
+                    }
+
+                    process(inputs, outputs, parameters) {
+                        const input = inputs[0];
+                        if (input.length > 0) {
+                            const samples = input[0];
+                            
+                            for (let i = 0; i < samples.length; i++) {
+                                this.buffer[this.bufferIndex++] = samples[i];
+                                
+                                if (this.bufferIndex >= this.bufferSize) {
+                                    // Convertir a PCM16
+                                    const pcm16 = new Int16Array(this.bufferSize);
+                                    for (let j = 0; j < this.bufferSize; j++) {
+                                        const s = Math.max(-1, Math.min(1, this.buffer[j]));
+                                        pcm16[j] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                                    }
+                                    
+                                    this.port.postMessage({
+                                        type: 'audio',
+                                        audio: pcm16.buffer
+                                    }, [pcm16.buffer]);
+                                    
+                                    // Calcular volumen
+                                    let sum = 0;
+                                    for (let j = 0; j < this.bufferSize; j++) {
+                                        sum += Math.abs(this.buffer[j]);
+                                    }
+                                    const volume = sum / this.bufferSize;
+                                    
+                                    this.port.postMessage({
+                                        type: 'volume',
+                                        volume: volume
+                                    });
+                                    
+                                    this.bufferIndex = 0;
+                                }
+                            }
+                        }
+                        return true;
+                    }
+                }
+                registerProcessor('audio-processor', AudioProcessor);
+            `;
+            
+            const blob = new Blob([processorCode], { type: 'application/javascript' });
+            return URL.createObjectURL(blob);
+        }
+
+        function arrayBufferToBase64(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        function updateVisualizer(volume) {
+            bars.forEach((bar, index) => {
+                const height = Math.min(60, volume * 1000 + Math.random() * 20);
+                bar.style.height = height + 'px';
+            });
+        }
+
+        function toggleTalk() {
+            isTalking = !isTalking;
+            const btn = document.getElementById('talkBtn');
+            
+            if (isTalking) {
+                btn.textContent = '⏸️ Detener';
+                btn.classList.add('talking');
+                updateStatus('Escuchando...', 'speaking');
+            } else {
+                btn.textContent = '🎤 Hablar';
+                btn.classList.remove('talking');
+                updateStatus('Conectado - Listo para hablar', 'connected');
+                
+                // Commit audio buffer
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'input_audio_buffer.commit'
+                    }));
+                    ws.send(JSON.stringify({
+                        type: 'response.create'
+                    }));
+                }
+            }
+        }
+
+        function handleServerMessage(event) {
+            console.log('Evento:', event.type);
+
+            switch (event.type) {
+                case 'session.created':
+                    console.log('Sesión creada:', event.session.id);
+                    break;
+
+                case 'input_audio_buffer.speech_started':
+                    console.log('Usuario empezó a hablar');
+                    break;
+
+                case 'input_audio_buffer.speech_stopped':
+                    console.log('Usuario dejó de hablar');
+                    break;
+
+                case 'conversation.item.input_audio_transcription.completed':
+                    addMessage('user', event.transcript);
+                    break;
+
+                case 'response.audio_transcript.delta':
+                    // Actualizar transcripción del asistente en tiempo real
+                    let lastMsg = conversationDiv.lastElementChild;
+                    if (!lastMsg || !lastMsg.classList.contains('assistant')) {
+                        addMessage('assistant', event.delta);
+                    } else {
+                        lastMsg.querySelector('div:last-child').textContent += event.delta;
+                    }
+                    break;
+
+                case 'response.audio.delta':
+                    // Reproducir audio (requiere decodificación PCM16)
+                    // TODO: Implementar reproducción de audio
+                    break;
+
+                case 'response.done':
+                    console.log('Respuesta completada');
+                    updateStatus('Conectado - Listo para hablar', 'connected');
+                    break;
+
+                case 'error':
+                    console.error('Error:', event.error);
+                    addMessage('assistant', '⚠️ Error: ' + event.error.message);
+                    break;
+            }
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close();
+            }
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+            if (audioContext) {
+                audioContext.close();
+            }
+            isTalking = false;
+            document.getElementById('talkBtn').classList.remove('talking');
+        }
+    </script>
+</body>
+</html>
+

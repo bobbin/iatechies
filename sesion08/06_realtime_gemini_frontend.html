@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Live API - Conversación Multimodal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 50%, #fbbc05 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .gemini-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status.disconnected {
+            background: #fee;
+            color: #c33;
+        }
+
+        .status.connected {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status.speaking {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #connectBtn {
+            background: #4285f4;
+            color: white;
+        }
+
+        #talkBtn {
+            background: #34a853;
+            color: white;
+        }
+
+        #talkBtn.talking {
+            background: #ea4335;
+            animation: talking-pulse 1s infinite;
+        }
+
+        @keyframes talking-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        #stopBtn {
+            background: #ea4335;
+            color: white;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #textInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #textInput:focus {
+            border-color: #4285f4;
+        }
+
+        #sendBtn {
+            padding: 12px 24px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .conversation {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            background: #4285f4;
+            color: white;
+            margin-left: 20%;
+        }
+
+        .message.assistant {
+            background: white;
+            border: 2px solid #e0e0e0;
+            margin-right: 20%;
+        }
+
+        .message-label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            opacity: 0.7;
+        }
+
+        .audio-visualizer {
+            width: 100%;
+            height: 80px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .audio-bars {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 4px;
+        }
+
+        .bar {
+            width: 4px;
+            border-radius: 2px;
+            transition: height 0.1s;
+        }
+
+        .bar:nth-child(4n+1) { background: #4285f4; }
+        .bar:nth-child(4n+2) { background: #34a853; }
+        .bar:nth-child(4n+3) { background: #fbbc05; }
+        .bar:nth-child(4n+4) { background: #ea4335; }
+
+        .info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #2e7d32;
+        }
+
+        .info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .warning {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #e65100;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <div class="gemini-logo">G</div>
+            Gemini Live API
+        </h1>
+        <p class="subtitle">Conversación multimodal con Gemini 2.0</p>
+
+        <div class="warning">
+            ⚠️ <strong>Nota:</strong> Gemini Live API está en preview. 
+            Actualmente usando modo texto. Audio en tiempo real próximamente.
+        </div>
+
+        <div class="status disconnected" id="status">
+            <div class="status-dot"></div>
+            <span>Desconectado</span>
+        </div>
+
+        <div class="controls">
+            <button id="connectBtn" onclick="connect()">Conectar</button>
+            <button id="talkBtn" onclick="toggleTalk()" disabled>🎤 Hablar</button>
+            <button id="stopBtn" onclick="disconnect()" disabled>Desconectar</button>
+        </div>
+
+        <div class="input-area">
+            <input 
+                type="text" 
+                id="textInput" 
+                placeholder="Escribe un mensaje o usa el micrófono..."
+                onkeypress="handleKeyPress(event)"
+                disabled
+            >
+            <button id="sendBtn" onclick="sendTextMessage()" disabled>Enviar</button>
+        </div>
+
+        <div class="audio-visualizer">
+            <div class="audio-bars" id="visualizer">
+                <!-- Barras generadas por JS -->
+            </div>
+        </div>
+
+        <div class="conversation" id="conversation">
+            <div style="text-align: center; color: #999; padding: 60px 20px;">
+                <p>Haz clic en "Conectar" para iniciar</p>
+                <p style="font-size: 12px; margin-top: 10px;">
+                    Powered by Google Gemini 2.0
+                </p>
+            </div>
+        </div>
+
+        <div class="info">
+            <strong>💡 Instrucciones:</strong>
+            1. Conectar → 2. Escribir o Hablar → 3. Gemini responderá<br>
+            <strong>🎯 Características:</strong> Multimodal, Funciones, Baja latencia
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let audioContext = null;
+        let mediaStream = null;
+        let isTalking = false;
+        let conversationDiv = document.getElementById('conversation');
+        let statusDiv = document.getElementById('status');
+        let visualizer = document.getElementById('visualizer');
+
+        // Crear barras de visualizador
+        for (let i = 0; i < 20; i++) {
+            let bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = '10px';
+            visualizer.appendChild(bar);
+        }
+        let bars = document.querySelectorAll('.bar');
+
+        function updateStatus(text, className) {
+            statusDiv.className = `status ${className}`;
+            statusDiv.querySelector('span').textContent = text;
+        }
+
+        function addMessage(role, text) {
+            let message = document.createElement('div');
+            message.className = `message ${role}`;
+            message.innerHTML = `
+                <div class="message-label">${role === 'user' ? '👤 Tú' : '🤖 Gemini'}</div>
+                <div>${text}</div>
+            `;
+            conversationDiv.appendChild(message);
+            conversationDiv.scrollTop = conversationDiv.scrollHeight;
+        }
+
+        function connect() {
+            try {
+                updateStatus('Conectando...', 'disconnected');
+
+                // Conectar WebSocket
+                ws = new WebSocket('ws://localhost:8766');
+
+                ws.onopen = () => {
+                    console.log('WebSocket conectado');
+                    updateStatus('Conectado - Listo para conversar', 'connected');
+                    
+                    document.getElementById('connectBtn').disabled = true;
+                    document.getElementById('talkBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = false;
+                    document.getElementById('textInput').disabled = false;
+                    document.getElementById('sendBtn').disabled = false;
+
+                    conversationDiv.innerHTML = '';
+                    addMessage('assistant', '¡Hola! Soy Gemini. Puedes escribir o usar el micrófono para conversar conmigo.');
+                };
+
+                ws.onmessage = (event) => {
+                    handleServerMessage(JSON.parse(event.data));
+                };
+
+                ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    updateStatus('Error de conexión', 'disconnected');
+                };
+
+                ws.onclose = () => {
+                    console.log('WebSocket cerrado');
+                    updateStatus('Desconectado', 'disconnected');
+                    document.getElementById('connectBtn').disabled = false;
+                    document.getElementById('talkBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = true;
+                    document.getElementById('textInput').disabled = true;
+                    document.getElementById('sendBtn').disabled = true;
+                };
+
+            } catch (error) {
+                console.error('Error al conectar:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendTextMessage();
+            }
+        }
+
+        function sendTextMessage() {
+            const input = document.getElementById('textInput');
+            const text = input.value.trim();
+            
+            if (!text || !ws || ws.readyState !== WebSocket.OPEN) {
+                return;
+            }
+
+            // Enviar mensaje
+            ws.send(JSON.stringify({
+                type: 'text_message',
+                text: text
+            }));
+
+            input.value = '';
+        }
+
+        function toggleTalk() {
+            isTalking = !isTalking;
+            const btn = document.getElementById('talkBtn');
+            
+            if (isTalking) {
+                btn.textContent = '⏸️ Detener';
+                btn.classList.add('talking');
+                updateStatus('Escuchando...', 'speaking');
+                startAudioCapture();
+            } else {
+                btn.textContent = '🎤 Hablar';
+                btn.classList.remove('talking');
+                updateStatus('Conectado - Listo para conversar', 'connected');
+                stopAudioCapture();
+            }
+        }
+
+        async function startAudioCapture() {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                console.log('Micrófono activado');
+                
+                // Simular visualización
+                let interval = setInterval(() => {
+                    if (!isTalking) {
+                        clearInterval(interval);
+                        bars.forEach(bar => bar.style.height = '10px');
+                    } else {
+                        updateVisualizer(Math.random() * 0.5);
+                    }
+                }, 100);
+                
+            } catch (error) {
+                console.error('Error al acceder al micrófono:', error);
+                alert('No se pudo acceder al micrófono');
+                toggleTalk();
+            }
+        }
+
+        function stopAudioCapture() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+        }
+
+        function updateVisualizer(volume) {
+            bars.forEach((bar, index) => {
+                const height = Math.min(60, volume * 1000 + Math.random() * 20);
+                bar.style.height = height + 'px';
+            });
+        }
+
+        function handleServerMessage(event) {
+            console.log('Evento:', event.type);
+
+            switch (event.type) {
+                case 'session.created':
+                    console.log('Sesión creada');
+                    break;
+
+                case 'conversation.item.input_audio_transcription.completed':
+                    addMessage('user', event.transcript);
+                    break;
+
+                case 'response.audio_transcript.delta':
+                    // Actualizar transcripción de Gemini
+                    let lastMsg = conversationDiv.lastElementChild;
+                    if (!lastMsg || !lastMsg.classList.contains('assistant')) {
+                        addMessage('assistant', event.delta);
+                    } else {
+                        lastMsg.querySelector('div:last-child').textContent += event.delta;
+                    }
+                    break;
+
+                case 'response.done':
+                    console.log('Respuesta completada');
+                    updateStatus('Conectado - Listo para conversar', 'connected');
+                    break;
+
+                case 'error':
+                    console.error('Error:', event.error);
+                    addMessage('assistant', '⚠️ Error: ' + event.error.message);
+                    break;
+            }
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close();
+            }
+            stopAudioCapture();
+            isTalking = false;
+            document.getElementById('talkBtn').classList.remove('talking');
+        }
+    </script>
+</body>
+</html>
+
