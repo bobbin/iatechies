@@ -142,7 +142,14 @@ def kokoro_tts(text: str, voice: str = "af_heart") -> bytes:
         raise Exception("HF_TOKEN no configurado")
     
     # Determinar el endpoint según el prefijo de la voz
-    voice_prefix = voice[:2] if len(voice) >= 2 else "af"
+    # Si hay mezcla (formato: "voice1[weight1]+voice2[weight2]"), extraer la primera voz
+    if "+" in voice:
+        # Es una mezcla, extraer la primera voz
+        first_voice = voice.split("+")[0].split("[")[0]  # Ej: "ef_dora[0.7]" -> "ef_dora"
+        voice_prefix = first_voice[:2] if len(first_voice) >= 2 else "af"
+        print(f"🎨 Mezcla detectada. Primera voz: {first_voice}, prefijo: {voice_prefix}")
+    else:
+        voice_prefix = voice[:2] if len(voice) >= 2 else "af"
     
     # Mapeo de prefijos a endpoints
     endpoint_map = {
@@ -554,15 +561,32 @@ async def synthesize(request: TTSRequest):
             if not get_kokoro_token():
                 raise HTTPException(500, "HF_TOKEN no configurado para Kokoro TTS. Añade HF_TOKEN en .env")
             
-            # Seleccionar voz (default: ef_dora para español)
-            voice = request.speaker if request.speaker in KOKORO_VOICES else "ef_dora"
+            # Verificar si hay mezcla de voces en request.voice
+            voice = None
+            using_blend = False
+            blend_warning = None
+            
+            if request.voice and request.voice != "default" and "+" in request.voice:
+                # Hay una mezcla, pero la API de fal.ai NO soporta mezclas
+                # Extraer la primera voz de la mezcla
+                first_voice = request.voice.split("+")[0].split("[")[0].strip()
+                voice = first_voice if first_voice in KOKORO_VOICES else "ef_dora"
+                using_blend = True
+                blend_warning = f"⚠️ La API de fal.ai no soporta mezclas de voces. Usando solo la primera voz: {voice}"
+                print(f"🎨 Mezcla detectada: {request.voice}")
+                print(f"   {blend_warning}")
+            else:
+                # Usar voz individual del selector
+                voice = request.speaker if request.speaker in KOKORO_VOICES else "ef_dora"
+                print(f"🎤 Usando voz individual: {voice} ({KOKORO_VOICES.get(voice, 'desconocida')})")
             
             print(f"🎤 Kokoro TTS via HuggingFace Router")
-            print(f"   Voz: {voice} ({KOKORO_VOICES.get(voice, 'desconocida')})")
+            print(f"   Voz final: {voice}")
             print(f"   Texto: {request.text[:80]}...")
             
             try:
                 # Llamar a la API usando requests directo
+                # La API de fal.ai solo acepta voces individuales del enum
                 audio_bytes = kokoro_tts(request.text, voice)
                 
                 print(f"✅ Audio generado: {len(audio_bytes)} bytes con voz {voice}")
@@ -610,7 +634,8 @@ async def synthesize(request: TTSRequest):
         if request.backend == "openai":
             costo = (len(request.text) / 1000) * 0.015
         
-        return {
+        # Preparar respuesta
+        response_data = {
             "success": True,
             "audio_url": f"/api/audio/{Path(output_path).name}",
             "processing_time": round(tiempo, 2),
@@ -620,6 +645,12 @@ async def synthesize(request: TTSRequest):
             "backend": request.backend,
             "language": request.language
         }
+        
+        # Añadir warning si se usó mezcla en Kokoro
+        if request.backend == "kokoro" and request.voice and request.voice != "default" and "+" in request.voice:
+            response_data["warning"] = "La API de fal.ai no soporta mezclas de voces. Se usó solo la primera voz de la mezcla."
+        
+        return response_data
         
     except HTTPException:
         raise
