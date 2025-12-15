@@ -327,8 +327,10 @@
 
         <div class="info">
             <strong>💡 Instrucciones:</strong>
-            1. Conectar → 2. Escribir o Hablar → 3. Gemini responderá<br>
-            <strong>🎯 Características:</strong> Multimodal, Funciones, Baja latencia
+            1. <strong>Primero ejecuta el servidor:</strong> <code>python 06_realtime_gemini_server.py</code><br>
+            2. Conectar → 3. Escribir o Hablar → 4. Gemini responderá<br>
+            <strong>🎯 Características:</strong> Multimodal, Funciones, Baja latencia<br>
+            <strong>⚠️ Requisitos:</strong> GOOGLE_API_KEY en archivo .env
         </div>
     </div>
 
@@ -336,6 +338,7 @@
         let ws = null;
         let audioContext = null;
         let mediaStream = null;
+        let audioWorkletNode = null;
         let isTalking = false;
         let conversationDiv = document.getElementById('conversation');
         let statusDiv = document.getElementById('status');
@@ -373,7 +376,7 @@
                 // Conectar WebSocket
                 ws = new WebSocket('ws://localhost:8766');
 
-                ws.onopen = () => {
+                ws.onopen = async () => {
                     console.log('WebSocket conectado');
                     updateStatus('Conectado - Listo para conversar', 'connected');
                     
@@ -385,6 +388,9 @@
 
                     conversationDiv.innerHTML = '';
                     addMessage('assistant', '¡Hola! Soy Gemini. Puedes escribir o usar el micrófono para conversar conmigo.');
+
+                    // Inicializar audio
+                    await initAudio();
                 };
 
                 ws.onmessage = (event) => {
@@ -393,12 +399,21 @@
 
                 ws.onerror = (error) => {
                     console.error('WebSocket error:', error);
-                    updateStatus('Error de conexión', 'disconnected');
+                    updateStatus('Error de conexión - ¿Servidor corriendo?', 'disconnected');
+                    addMessage('assistant', '❌ Error: No se pudo conectar al servidor. Asegúrate de que el servidor esté corriendo con: python 06_realtime_gemini_server.py');
                 };
 
-                ws.onclose = () => {
-                    console.log('WebSocket cerrado');
-                    updateStatus('Desconectado', 'disconnected');
+                ws.onclose = (event) => {
+                    console.log('WebSocket cerrado', event.code, event.reason);
+                    if (event.code !== 1000) {
+                        // Cierre inesperado
+                        updateStatus('Desconectado - Error de conexión', 'disconnected');
+                        if (event.code === 1006) {
+                            addMessage('assistant', '⚠️ El servidor no está disponible. Ejecuta: python 06_realtime_gemini_server.py');
+                        }
+                    } else {
+                        updateStatus('Desconectado', 'disconnected');
+                    }
                     document.getElementById('connectBtn').disabled = false;
                     document.getElementById('talkBtn').disabled = true;
                     document.getElementById('stopBtn').disabled = true;
@@ -443,41 +458,118 @@
                 btn.textContent = '⏸️ Detener';
                 btn.classList.add('talking');
                 updateStatus('Escuchando...', 'speaking');
-                startAudioCapture();
             } else {
                 btn.textContent = '🎤 Hablar';
                 btn.classList.remove('talking');
                 updateStatus('Conectado - Listo para conversar', 'connected');
-                stopAudioCapture();
+                
+                // Commit audio buffer y crear respuesta
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'input_audio_buffer.commit'
+                    }));
+                    ws.send(JSON.stringify({
+                        type: 'response.create'
+                    }));
+                }
             }
         }
 
-        async function startAudioCapture() {
+        async function initAudio() {
             try {
-                mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                console.log('Micrófono activado');
+                // Solicitar acceso al micrófono
+                mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        sampleRate: 16000,  // Gemini usa 16kHz
+                        channelCount: 1,
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    } 
+                });
+
+                audioContext = new AudioContext({ sampleRate: 16000 });
+                const source = audioContext.createMediaStreamSource(mediaStream);
+
+                // Usar ScriptProcessorNode como alternativa más compatible
+                // (aunque deprecated, funciona mejor que AudioWorklet con Blob URLs)
+                const bufferSize = 4096;
+                const processor = audioContext.createScriptProcessor(bufferSize, 1, 1);
                 
-                // Simular visualización
-                let interval = setInterval(() => {
-                    if (!isTalking) {
-                        clearInterval(interval);
-                        bars.forEach(bar => bar.style.height = '10px');
-                    } else {
-                        updateVisualizer(Math.random() * 0.5);
+                let audioBuffer = new Float32Array(bufferSize);
+                let bufferIndex = 0;
+                
+                processor.onaudioprocess = (event) => {
+                    if (!isTalking) return;
+                    
+                    const input = event.inputBuffer.getChannelData(0);
+                    
+                    // Acumular muestras
+                    for (let i = 0; i < input.length; i++) {
+                        audioBuffer[bufferIndex++] = input[i];
+                        
+                        if (bufferIndex >= bufferSize) {
+                            // Convertir a PCM16
+                            const pcm16 = new Int16Array(bufferSize);
+                            let sum = 0;
+                            
+                            for (let j = 0; j < bufferSize; j++) {
+                                const s = Math.max(-1, Math.min(1, audioBuffer[j]));
+                                pcm16[j] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                                sum += Math.abs(audioBuffer[j]);
+                            }
+                            
+                            // Enviar audio al servidor
+                            if (ws && ws.readyState === WebSocket.OPEN) {
+                                const message = {
+                                    type: 'input_audio_buffer.append',
+                                    audio: arrayBufferToBase64(pcm16.buffer)
+                                };
+                                ws.send(JSON.stringify(message));
+                            }
+                            
+                            // Visualizar volumen
+                            const volume = sum / bufferSize;
+                            updateVisualizer(volume);
+                            
+                            bufferIndex = 0;
+                        }
                     }
-                }, 100);
-                
+                };
+
+                source.connect(processor);
+                processor.connect(audioContext.destination);
+
+                console.log('Audio inicializado con ScriptProcessorNode');
+
             } catch (error) {
-                console.error('Error al acceder al micrófono:', error);
-                alert('No se pudo acceder al micrófono');
-                toggleTalk();
+                console.error('Error al inicializar audio:', error);
+                alert('No se pudo acceder al micrófono: ' + error.message);
             }
+        }
+
+        function arrayBufferToBase64(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        function startAudioCapture() {
+            // El audio ya está inicializado en initAudio()
+            // Esta función solo se usa para compatibilidad
+            console.log('Audio capture iniciado');
         }
 
         function stopAudioCapture() {
             if (mediaStream) {
                 mediaStream.getTracks().forEach(track => track.stop());
                 mediaStream = null;
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
             }
         }
 
@@ -529,6 +621,10 @@
             stopAudioCapture();
             isTalking = false;
             document.getElementById('talkBtn').classList.remove('talking');
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
         }
     </script>
 </body>

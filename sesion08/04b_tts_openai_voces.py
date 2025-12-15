@@ -41,7 +41,7 @@ def main():
         
         try:
             response = client.audio.speech.create(
-                model="tts-1",
+                model="gpt-4o-mini-tts",
                 voice=voz,
                 input=texto
             )

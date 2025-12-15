@@ -25,6 +25,7 @@ import os
 import tempfile
 import time
 import shutil
+import requests
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -121,21 +122,154 @@ def get_openai():
     return openai_client
 
 
-def get_kokoro_client():
-    """Cliente Kokoro TTS via HuggingFace"""
-    hf_token = os.getenv("HF_API_KEY") or os.getenv("HF_TOKEN")
+def get_kokoro_token():
+    """Token para Kokoro TTS via HuggingFace Router"""
+    return os.getenv("HF_API_KEY") or os.getenv("HF_TOKEN")
+
+
+def kokoro_tts(text: str, voice: str = "af_heart") -> bytes:
+    """
+    Genera audio con Kokoro TTS via HuggingFace Router + fal-ai
+    
+    Endpoints disponibles:
+    - american-english: voces af_* y am_*
+    - british-english: voces bf_* y bm_*  
+    - spanish: voces ef_* y em_*
+    - Y otros idiomas...
+    """
+    hf_token = get_kokoro_token()
     if not hf_token:
-        return None
+        raise Exception("HF_TOKEN no configurado")
+    
+    # Determinar el endpoint según el prefijo de la voz
+    # Si hay mezcla (formato: "voice1[weight1]+voice2[weight2]"), extraer la primera voz
+    if "+" in voice:
+        # Es una mezcla, extraer la primera voz
+        first_voice = voice.split("+")[0].split("[")[0]  # Ej: "ef_dora[0.7]" -> "ef_dora"
+        voice_prefix = first_voice[:2] if len(first_voice) >= 2 else "af"
+        print(f"🎨 Mezcla detectada. Primera voz: {first_voice}, prefijo: {voice_prefix}")
+    else:
+        voice_prefix = voice[:2] if len(voice) >= 2 else "af"
+    
+    # Mapeo de prefijos a endpoints
+    endpoint_map = {
+        "af": "american-english",  # American Female
+        "am": "american-english",  # American Male
+        "bf": "british-english",   # British Female
+        "bm": "british-english",   # British Male
+        "ef": "spanish",           # Español Female
+        "em": "spanish",           # Español Male
+        "ff": "french",            # French Female
+        "fm": "french",            # French Male
+        "hf": "hindi",             # Hindi Female
+        "hm": "hindi",             # Hindi Male
+        "if": "italian",           # Italian Female
+        "im": "italian",           # Italian Male
+        "jf": "japanese",          # Japanese Female
+        "jm": "japanese",          # Japanese Male
+        "pf": "brazilian-portuguese",  # Portuguese Female
+        "pm": "brazilian-portuguese",  # Portuguese Male
+        "zf": "mandarin-chinese",  # Chinese Female
+        "zm": "mandarin-chinese",  # Chinese Male
+    }
+    
+    lang_endpoint = endpoint_map.get(voice_prefix, "american-english")
+    
+    API_URL = f"https://router.huggingface.co/fal-ai/fal-ai/kokoro/{lang_endpoint}"
+    
+    headers = {
+        "Authorization": f"Bearer {hf_token}",
+        "Content-Type": "application/json"
+    }
+    
+    # El payload debe usar "prompt" según la documentación de fal.ai
+    payload = {
+        "prompt": text,
+        "voice": voice
+    }
+    
+    print(f"🌐 Llamando a: {API_URL}")
+    print(f"   Payload: {payload}")
+    
+    response = requests.post(API_URL, headers=headers, json=payload, timeout=60)
+    
+    if response.status_code != 200:
+        raise Exception(f"Error {response.status_code}: {response.text}")
+    
+    # La respuesta puede ser JSON con audio y sampling_rate, o directamente bytes
+    content_type = response.headers.get("content-type", "").lower()
+    
+    # Intentar parsear como JSON primero
     try:
-        from huggingface_hub import InferenceClient
-        client = InferenceClient(
-            provider="fal-ai",
-            api_key=hf_token,
-        )
-        return client
-    except Exception as e:
-        print(f"Error inicializando Kokoro: {e}")
-        return None
+        data = response.json()
+        print(f"📦 Respuesta JSON recibida. Keys: {list(data.keys())}")
+        
+        # Si es JSON, el audio puede estar en base64 o como lista de floats
+        if "audio" in data:
+            audio_data = data["audio"]
+            sampling_rate = data.get("sampling_rate", 24000)
+            
+            print(f"🎵 Tipo de audio_data: {type(audio_data)}")
+            
+            # Si es lista de floats, convertir a WAV
+            if isinstance(audio_data, list):
+                import numpy as np
+                import struct
+                import io
+                
+                print(f"📊 Audio es lista de {len(audio_data)} elementos")
+                
+                # Convertir floats a int16
+                audio_array = np.array(audio_data, dtype=np.float32)
+                audio_int16 = (audio_array * 32767).astype(np.int16)
+                
+                # Crear WAV en memoria
+                wav_buffer = io.BytesIO()
+                # Header WAV
+                wav_buffer.write(b'RIFF')
+                wav_buffer.write(struct.pack('<I', 36 + len(audio_int16) * 2))
+                wav_buffer.write(b'WAVE')
+                wav_buffer.write(b'fmt ')
+                wav_buffer.write(struct.pack('<I', 16))  # Subchunk1Size
+                wav_buffer.write(struct.pack('<H', 1))   # AudioFormat (PCM)
+                wav_buffer.write(struct.pack('<H', 1))   # NumChannels
+                wav_buffer.write(struct.pack('<I', sampling_rate))  # SampleRate
+                wav_buffer.write(struct.pack('<I', sampling_rate * 2))  # ByteRate
+                wav_buffer.write(struct.pack('<H', 2))   # BlockAlign
+                wav_buffer.write(struct.pack('<H', 16))  # BitsPerSample
+                wav_buffer.write(b'data')
+                wav_buffer.write(struct.pack('<I', len(audio_int16) * 2))
+                wav_buffer.write(audio_int16.tobytes())
+                
+                return wav_buffer.getvalue()
+            elif isinstance(audio_data, str):
+                # Base64 encoded
+                print("🔐 Audio es string (base64)")
+                import base64
+                return base64.b64decode(audio_data)
+            elif isinstance(audio_data, dict):
+                # Si audio es un dict, puede tener 'url' o 'data'
+                print(f"📦 Audio es dict. Keys: {list(audio_data.keys())}")
+                if "url" in audio_data:
+                    # Descargar desde URL
+                    audio_url = audio_data["url"]
+                    print(f"🌐 Descargando audio desde: {audio_url}")
+                    audio_response = requests.get(audio_url, timeout=30)
+                    audio_response.raise_for_status()
+                    return audio_response.content
+                elif "data" in audio_data:
+                    # Datos directos
+                    return audio_data["data"]
+                else:
+                    raise Exception(f"Dict audio sin 'url' ni 'data': {list(audio_data.keys())}")
+            else:
+                raise Exception(f"Formato de audio_data no soportado: {type(audio_data)}. Valor: {str(audio_data)[:100]}")
+        else:
+            raise Exception(f"Respuesta JSON sin clave 'audio'. Keys disponibles: {list(data.keys())}")
+    except ValueError:
+        # No es JSON, es bytes directo
+        print("📦 Respuesta es bytes directos")
+        return response.content
 
 
 # Voces disponibles en Kokoro TTS (hexgrad/Kokoro-82M)
@@ -375,40 +509,94 @@ async def synthesize(request: TTSRequest):
                 "language": request.language if request.language else "es"
             }
             
+            # XTTS v2 requiere speaker_wav o speaker_id
+            speaker_wav_provided = False
+            
             # Si hay audio de referencia, usar clonación
             if request.reference_audio and request.reference_audio != "none":
                 ref_path = REFERENCE_DIR / request.reference_audio
                 if ref_path.exists():
                     kwargs["speaker_wav"] = str(ref_path)
+                    speaker_wav_provided = True
                 else:
                     raise HTTPException(400, "Audio de referencia no encontrado")
-            # Si no, usar speaker predefinido
-            elif request.speaker and request.speaker != "default":
-                kwargs["speaker"] = request.speaker
+            
+            # Si no hay referencia, generar una automáticamente con pyttsx3
+            if not speaker_wav_provided:
+                try:
+                    import pyttsx3
+                    # Generar audio de referencia temporal
+                    ref_temp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+                    ref_temp.close()
+                    
+                    engine = pyttsx3.init()
+                    texto_ref = "Hola, esta es una voz de referencia para el modelo multilingüe."
+                    engine.save_to_file(texto_ref, ref_temp.name)
+                    engine.runAndWait()
+                    
+                    if os.path.exists(ref_temp.name):
+                        kwargs["speaker_wav"] = ref_temp.name
+                        print(f"✅ Audio de referencia generado automáticamente: {ref_temp.name}")
+                    else:
+                        raise HTTPException(500, "No se pudo generar audio de referencia")
+                except Exception as e:
+                    print(f"⚠️  Error generando referencia automática: {e}")
+                    raise HTTPException(
+                        500, 
+                        f"XTTS requiere un audio de referencia. Sube uno en la sección 'Clonación de Voz' o instala pyttsx3 para generación automática. Error: {str(e)}"
+                    )
             
             tts.tts_to_file(**kwargs)
             
-        elif request.backend == "kokoro":
-            # Kokoro TTS via HuggingFace
-            client = get_kokoro_client()
-            if not client:
-                raise HTTPException(500, "HF_TOKEN no configurado para Kokoro TTS")
+            # Limpiar archivo temporal de referencia si se generó automáticamente
+            if not speaker_wav_provided and "speaker_wav" in kwargs:
+                try:
+                    if os.path.exists(kwargs["speaker_wav"]) and kwargs["speaker_wav"].startswith(tempfile.gettempdir()):
+                        os.unlink(kwargs["speaker_wav"])
+                except:
+                    pass
             
-            # Seleccionar voz (default: ef_dora para español)
-            voice = request.speaker if request.speaker in KOKORO_VOICES else "ef_dora"
+        elif request.backend == "kokoro":
+            # Kokoro TTS via HuggingFace Router + fal-ai
+            if not get_kokoro_token():
+                raise HTTPException(500, "HF_TOKEN no configurado para Kokoro TTS. Añade HF_TOKEN en .env")
+            
+            # Verificar si hay mezcla de voces en request.voice
+            voice = None
+            using_blend = False
+            blend_warning = None
+            
+            if request.voice and request.voice != "default" and "+" in request.voice:
+                # Hay una mezcla, pero la API de fal.ai NO soporta mezclas
+                # Extraer la primera voz de la mezcla
+                first_voice = request.voice.split("+")[0].split("[")[0].strip()
+                voice = first_voice if first_voice in KOKORO_VOICES else "ef_dora"
+                using_blend = True
+                blend_warning = f"⚠️ La API de fal.ai no soporta mezclas de voces. Usando solo la primera voz: {voice}"
+                print(f"🎨 Mezcla detectada: {request.voice}")
+                print(f"   {blend_warning}")
+            else:
+                # Usar voz individual del selector
+                voice = request.speaker if request.speaker in KOKORO_VOICES else "ef_dora"
+                print(f"🎤 Usando voz individual: {voice} ({KOKORO_VOICES.get(voice, 'desconocida')})")
+            
+            print(f"🎤 Kokoro TTS via HuggingFace Router")
+            print(f"   Voz final: {voice}")
+            print(f"   Texto: {request.text[:80]}...")
             
             try:
-                # Llamar a la API de HuggingFace
-                audio_bytes = client.text_to_speech(
-                    request.text,
-                    model="hexgrad/Kokoro-82M",
-                )
+                # Llamar a la API usando requests directo
+                # La API de fal.ai solo acepta voces individuales del enum
+                audio_bytes = kokoro_tts(request.text, voice)
+                
+                print(f"✅ Audio generado: {len(audio_bytes)} bytes con voz {voice}")
                 
                 # Guardar el audio
                 with open(output_path, "wb") as f:
                     f.write(audio_bytes)
                     
             except Exception as e:
+                print(f"❌ Error en Kokoro: {str(e)}")
                 raise HTTPException(500, f"Error en Kokoro TTS: {str(e)}")
             
         elif request.backend == "openai":
@@ -446,7 +634,8 @@ async def synthesize(request: TTSRequest):
         if request.backend == "openai":
             costo = (len(request.text) / 1000) * 0.015
         
-        return {
+        # Preparar respuesta
+        response_data = {
             "success": True,
             "audio_url": f"/api/audio/{Path(output_path).name}",
             "processing_time": round(tiempo, 2),
@@ -456,6 +645,12 @@ async def synthesize(request: TTSRequest):
             "backend": request.backend,
             "language": request.language
         }
+        
+        # Añadir warning si se usó mezcla en Kokoro
+        if request.backend == "kokoro" and request.voice and request.voice != "default" and "+" in request.voice:
+            response_data["warning"] = "La API de fal.ai no soporta mezclas de voces. Se usó solo la primera voz de la mezcla."
+        
+        return response_data
         
     except HTTPException:
         raise

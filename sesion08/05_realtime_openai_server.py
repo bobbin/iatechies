@@ -29,9 +29,12 @@ class RealtimeRelay:
     
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.openai_url = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01"
+        # Modelo de OpenAI Realtime API
+        # Probar primero con el más reciente, si falla usar el anterior
+        self.model_name = "gpt-4o-realtime-preview-2024-10-01"  # Modelo estable
+        self.openai_url = f"wss://api.openai.com/v1/realtime?model={self.model_name}"
     
-    async def handle_client(self, websocket, path):
+    async def handle_client(self, websocket, path=None):
         """Manejar conexión de cliente web"""
         print(f"✅ Cliente conectado: {websocket.remote_address}")
         
@@ -42,10 +45,32 @@ class RealtimeRelay:
         }
         
         try:
-            async with websockets.connect(
-                self.openai_url,
-                extra_headers=headers
-            ) as openai_ws:
+            # Intentar conectar con timeout
+            try:
+                # Usar headers directamente (sintaxis correcta para websockets)
+                openai_ws = await asyncio.wait_for(
+                    websockets.connect(
+                        self.openai_url,
+                        headers=headers
+                    ),
+                    timeout=10.0
+                )
+            except asyncio.TimeoutError:
+                error_msg = json.dumps({
+                    "type": "error",
+                    "error": {"message": "Timeout conectando a OpenAI. Verifica tu API key y conexión."}
+                })
+                await websocket.send(error_msg)
+                return
+            except Exception as e:
+                error_msg = json.dumps({
+                    "type": "error",
+                    "error": {"message": f"Error conectando a OpenAI: {str(e)}"}
+                })
+                await websocket.send(error_msg)
+                return
+            
+            async with openai_ws:
                 print("✅ Conectado a OpenAI Realtime API")
                 
                 # Configurar sesión inicial

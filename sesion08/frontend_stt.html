@@ -451,10 +451,23 @@
             
             try {
                 const endpoint = backend === 'local' ? '/api/transcribe/local' : '/api/transcribe/openai';
+                
+                // Verificar que estamos en el servidor correcto
+                if (window.location.protocol === 'file:') {
+                    alert('⚠️ Error: Este archivo debe abrirse desde el servidor.\n\nEjecuta: python frontend_stt_server.py\nLuego abre: http://localhost:8080');
+                    document.getElementById('loading').classList.remove('visible');
+                    return;
+                }
+                
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     body: formData
                 });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Error del servidor (${response.status}): ${errorText}`);
+                }
                 
                 const data = await response.json();
                 
@@ -465,7 +478,14 @@
                 }
                 
             } catch (err) {
-                alert('Error: ' + err.message);
+                console.error('Error completo:', err);
+                let errorMsg = err.message;
+                
+                if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+                    errorMsg = 'No se pudo conectar al servidor.\n\nAsegúrate de que el servidor esté corriendo:\npython frontend_stt_server.py\n\nY que estés accediendo desde: http://localhost:8080';
+                }
+                
+                alert('Error: ' + errorMsg);
             } finally {
                 document.getElementById('loading').classList.remove('visible');
             }

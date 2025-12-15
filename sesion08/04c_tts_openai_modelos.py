@@ -34,6 +34,10 @@ def main():
         "tts-1-hd": {
             "descripcion": "Alta Definición (máxima calidad)",
             "costo_1k": 0.030
+        },
+        "gpt-4o-mini-tts": {
+            "descripcion": "GPT-4o Mini (alta calidad)",
+            "costo_1k": 0.030
         }
     }
     

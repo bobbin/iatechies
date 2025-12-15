@@ -2,35 +2,37 @@
 # ==========================================
 
 # Core dependencies
-openai>=1.12.0
-google-generativeai>=0.3.0
-python-dotenv>=1.0.0
+openai
+google-generativeai
+python-dotenv
 
 # Speech-to-Text (Local)
-faster-whisper>=1.0.0
+faster-whisper
+numpy  # Requerido por faster-whisper y procesamiento de audio
 
 # Text-to-Speech (Local)
-pyttsx3>=2.90
-TTS>=0.22.0
+pyttsx3
+# TTS  # Comentado: Requiere Python <3.12, no compatible con Python 3.14
+#      # Alternativas disponibles: edge-tts, gTTS, pyttsx3
 
 # Realtime Audio (WebSockets & Servers)
-websockets>=12.0
-aiohttp>=3.9.0
+websockets
+aiohttp
 
 # Frontend Demos (FastAPI)
-fastapi>=0.109.0
-uvicorn>=0.27.0
-python-multipart>=0.0.6
+fastapi
+uvicorn
+python-multipart
 
 # Audio generation (para crear ejemplos de testing)
-gTTS>=2.5.0
-edge-tts>=6.1.0
+gTTS
+edge-tts
 
 # Optional: Audio capture
-# pyaudio>=0.2.14
+# pyaudio
 
 # Optional: Audio processing avanzado
-# pydub>=0.25.0
-# soundfile>=0.12.0
-# librosa>=0.10.0
+pydub  # Requiere ffmpeg instalado en el sistema
+soundfile  # Alternativa para conversión de audio
+librosa  # Procesamiento de audio avanzado (alternativa a pydub)
 
